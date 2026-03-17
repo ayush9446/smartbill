@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBill - Supermarket Management System</title>
+    <link rel="stylesheet" href="/static/style.css?v=1.2">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="sidebar-shop-name" style="font-size: 16px;">{{ settings.SHOP_NAME[:15] }}{{ '...' if
+                        settings.SHOP_NAME|length > 15 else '' }}</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</li>
+                    <li data-page="billing"><i class="fas fa-file-invoice-dollar"></i> New Bill</li>
+                    <li data-page="inventory"><i class="fas fa-boxes"></i> Inventory</li>
+                    <li data-page="reports"><i class="fas fa-chart-line"></i> Reports</li>
+                    <li data-page="settings"><i class="fas fa-cog"></i> Settings</li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Ayush+Krishna&background=6366f1&color=fff" alt="User">
+                    <div>
+                        <p class="user-name">AYUSHKRISHNA</p>
+                        <p class="user-role">Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search products, invoices...">
+                </div>
+                <div class="top-bar-actions">
+                    <div style="position: relative;">
+                        <button class="icon-btn" id="notif-btn">
+                            <i class="far fa-bell"></i>
+                            <span id="notif-count" class="notification-badge hidden">0</span>
+                        </button>
+                        <div id="notif-dropdown" class="notification-dropdown hidden">
+                            <!-- Low stock items will appear here -->
+                        </div>
+                    </div>
+                    <button class="primary-btn" id="quick-bill-btn"><i class="fas fa-plus"></i> New Bill</button>
+                </div>
+            </header>
+
+            <div id="page-content" class="content-wrapper">
+                <!-- Pages will be loaded here dynamically -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Modals -->
+    <div id="modal-container" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title">Title</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modal-body" class="modal-body">
+                <!-- Modal content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=1.4"></script>
+</body>
+
+</html>

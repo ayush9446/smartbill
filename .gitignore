@@ -1,0 +1,25 @@
+# Python Environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+.env
+
+# Logs
+*.log
+error.log
+
+# Databases
+*.db
+*.sqlite3
+smartbill.db
+
+# OS Artifacts
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/

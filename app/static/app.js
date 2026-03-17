@@ -60,7 +60,7 @@ async function fetchInitialData() {
         state.settings = await setRes.json();
         
         updateNotifications();
-        renderDashboard();
+        loadPage(state.currentPage);
     } catch (error) {
         console.error('Failed to fetch data:', error);
     }

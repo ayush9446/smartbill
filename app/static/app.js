@@ -484,7 +484,8 @@ window.showQRBill = (inv) => {
     // We use the server IP (10.30.2.53) so customers on Wi-Fi can access it.
     let origin = window.location.origin;
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-        origin = 'http://10.30.2.53:8000';
+        const serverIp = state.settings.SERVER_IP || '127.0.0.1';
+        origin = `http://${serverIp}:8000`;
     }
 
     const billUrl = `${origin}/bill/${inv.id}`;

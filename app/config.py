@@ -39,26 +39,9 @@ def save_settings(settings_dict):
     with open(SETTINGS_FILE, "w") as f:
         json.dump(settings_dict, f, indent=4)
 
-import socket
-
-def get_local_ip():
-    """Returns the local IP address of this machine on the network."""
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        # We don't need a real connection, just to see which interface is used
-        s.connect(('10.255.255.255', 1))
-        IP = s.getsockname()[0]
-    except Exception:
-        IP = '127.0.0.1'
-    finally:
-        s.close()
-    return IP
-
 def get_public_settings(settings_dict):
     """Return settings without the password for public API responses."""
-    public = {k: v for k, v in settings_dict.items() if k != "SETTINGS_PASSWORD"}
-    public['SERVER_IP'] = get_local_ip()
-    return public
+    return {k: v for k, v in settings_dict.items() if k != "SETTINGS_PASSWORD"}
 
 # Global settings dictionary loaded on startup
 settings = load_settings()

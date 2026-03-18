@@ -268,7 +268,7 @@ function renderBilling() {
 
                 <div class="summary-item" style="display: flex; justify-content: space-between; margin: 20px 0;">
                     <span>Discount (₹)</span>
-                    <input type="number" id="bill-discount" value="0.00" step="0.01" style="width: 80px; text-align: right;" onchange="calculateTotals()">
+                    <input type="number" id="bill-discount" value="0.00" step="0.01" min="0" style="width: 80px; text-align: right;" onchange="calculateTotals()">
                 </div>
                 <div class="summary-item" style="display: flex; justify-content: space-between; margin: 20px 0; font-weight: 700; font-size: 1.2rem; border-top: 2px solid var(--border); padding-top: 15px;">
                     <span>Total</span>
@@ -393,7 +393,9 @@ function updateCartUI() {
 }
 
 window.updateQty = (index, val) => {
-    state.cart[index].quantity = parseFloat(val);
+    let quantity = parseFloat(val);
+    if (isNaN(quantity) || quantity < 0.01) quantity = 0.01;
+    state.cart[index].quantity = quantity;
     updateCartUI();
 }
 
@@ -481,7 +483,7 @@ async function handleCheckout() {
             showNotification(err.detail, 'error');
         }
     } catch (error) {
-        showNotification('Checkout failed', 'error');
+        showNotification('Checkout failed: ' + error.message, 'error');
     }
 }
 
@@ -1124,15 +1126,15 @@ window.openEditProductModal = (id) => {
             </div>
             <div class="form-group">
                 <label>Price per Unit (₹)</label>
-                <input type="number" id="p-price" step="0.01" value="${p.price_per_unit}" required>
+                <input type="number" id="p-price" step="0.01" min="0" value="${p.price_per_unit}" required>
             </div>
             <div class="form-group">
                 <label>Stock (Units)</label>
-                <input type="number" id="p-stock" step="0.01" value="${p.stock}" required>
+                <input type="number" id="p-stock" step="0.01" min="0" value="${p.stock}" required>
             </div>
             <div class="form-group">
                 <label>Low Stock Alert Threshold</label>
-                <input type="number" id="p-threshold" step="0.01" value="${p.low_stock_threshold || 5.0}" required>
+                <input type="number" id="p-threshold" step="0.01" min="0" value="${p.low_stock_threshold || 5.0}" required>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button type="submit" id="update-prod" class="primary-btn" style="flex: 1; justify-content: center;">Update Product</button>
@@ -1418,9 +1420,25 @@ function showNotification(msg, type = 'info') {
     const container = document.getElementById('notification-container');
     const note = document.createElement('div');
     note.className = `notification ${type}`;
-    note.innerHTML = `<span>${msg}</span>`;
+    
+    let displayMsg = msg;
+    if (typeof msg === 'object' && msg !== null) {
+        if (Array.isArray(msg)) {
+            displayMsg = msg.map(m => m.msg || JSON.stringify(m)).join(', ');
+        } else {
+            displayMsg = msg.detail || msg.message || JSON.stringify(msg);
+        }
+    }
+
+    note.innerHTML = `<span>${displayMsg}</span>`;
     container.appendChild(note);
-    setTimeout(() => note.remove(), 3000);
+    
+    setTimeout(() => {
+        note.style.opacity = '0';
+        note.style.transform = 'translateX(20px)';
+        note.style.transition = 'all 0.5s ease-out';
+        setTimeout(() => note.remove(), 500);
+    }, 4000);
 }
 
 function openModal() { modalContainer.classList.remove('hidden'); }

@@ -15,6 +15,18 @@ import os
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+# --- SQLite Schema Migration (Add missing columns to existing DBs) ---
+from sqlalchemy import text
+with engine.connect() as conn:
+    # SQLite doesn't support 'IF NOT EXISTS' for columns, so we try and ignore errors
+    for col in ["cgst_amount", "sgst_amount", "discount"]:
+        try:
+            conn.execute(text(f"ALTER TABLE invoices ADD COLUMN {col} FLOAT DEFAULT 0.0"))
+            conn.commit() # Required for some SQLAlchemy versions
+        except Exception:
+            # Column already exists or other non-fatal error
+            pass
+
 app = FastAPI(title="Supermarket Billing System")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
@@ -27,6 +39,21 @@ if not os.path.exists(STATIC_DIR):
     os.makedirs(STATIC_DIR)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# --- Global Exception Handler to capture 500 HTML responses and return JSON instead ---
+from fastapi.responses import JSONResponse
+import traceback
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    # Log the full error to the console for the developer
+    print(f"\n[CRITICAL ERROR] {exc}")
+    traceback.print_exc()
+    # Return JSON instead of the default Starlette plain-text/HTML
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Server Error: {str(exc)}"}
+    )
 
 # --- Password verification model ---
 class PasswordVerify(BaseModel):

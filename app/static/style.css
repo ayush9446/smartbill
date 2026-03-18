@@ -248,10 +248,12 @@ body {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Start from top for long modals */
     justify-content: center;
     z-index: 1000;
     transition: opacity 0.3s;
+    overflow-y: auto; /* Enable scroll if content is long */
+    padding: 40px 10px; /* Space at top and bottom */
 }
 
 .modal-overlay.hidden {
@@ -261,11 +263,12 @@ body {
 
 .modal {
     background: white;
-    width: 500px;
-    max-width: 90%;
+    width: 600px;
+    max-width: 95%;
     border-radius: var(--radius);
     padding: 24px;
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    margin: auto 0; /* Ensures centering if small, starts at top if big */
 }
 
 .modal-header {
@@ -620,70 +623,68 @@ td {
 
 /* Print Styles */
 @media print {
-    /* Set page margins to zero for thermal printers */
-    @page {
-        margin: 0;
-        size: auto;
+    /* Ensure the browser ignores everything EXCEPT the modal */
+    html, body {
+        height: auto;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: white !important;
     }
 
-    /* Hide everything on the page except the printable content */
-    body * {
-        visibility: hidden;
-    }
-
-    #modal-container,
-    #modal-container * {
-        visibility: visible;
-    }
-
-    /* Hide modal headers and other UI Chrome */
-    .modal-header,
-    .no-print,
-    .primary-btn,
-    .icon-btn,
-    .sidebar,
-    .top-bar,
-    .notification-container {
+    .app-container, 
+    #notification-container,
+    .modal-header, 
+    .no-print, 
+    .primary-btn, 
+    .icon-btn, 
+    .close-modal {
         display: none !important;
     }
 
-    /* Reset modal styles for printing */
-    .modal-overlay {
-        position: static;
-        background: none;
-        padding: 0;
-        margin: 0;
+    #modal-container {
+        position: static !important;
+        display: block !important;
+        visibility: visible !important;
+        background: none !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .modal {
-        position: static;
+        position: static !important;
         width: 100% !important;
         max-width: 100% !important;
         box-shadow: none !important;
+        border: none !important;
         padding: 0 !important;
         margin: 0 !important;
-        background: white;
+        background: white !important;
     }
 
-    /* Ensure the invoice container is full width and clean */
-    #printable-invoice {
-        visibility: visible;
-        width: 100% !important;
-        max-width: 100% !important;
-        border: none !important;
+    #modal-body {
+        padding: 0 !important;
         margin: 0 !important;
-        padding: 5mm !important;
     }
 
-    #printable-invoice h1 { font-size: 20pt !important; }
-    #printable-invoice p { font-size: 10pt !important; }
-    #printable-invoice table th, 
-    #printable-invoice table td { font-size: 9pt !important; padding: 4px !important; }
-    #printable-invoice .grand-total { font-size: 14pt !important; }
+    #printable-invoice {
+        visibility: visible !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 2mm !important;
+        border: none !important;
+    }
 
-    /* Content and text adjustments for better print quality */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+    }
+
+    @page {
+        margin: 0;
+        size: auto;
     }
 }

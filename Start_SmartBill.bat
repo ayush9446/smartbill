@@ -36,8 +36,6 @@ if not exist "venv\" (
     call venv\Scripts\activate.bat
 )
 
-:: Launch the browser in the background after waiting a brief period (3 seconds) for the server to spin up
-start /b cmd /c "timeout /t 3 >nul & start http://localhost:8000"
-
-:: Start the FastAPI server using Uvicorn (this stays open in the hidden background)
-python -m uvicorn main:app --host 0.0.0.0 --port 8000
+:: Launch the browser separately if you want, but main.py already does this!
+:: We just need to run main.py and it handles the rest.
+python main.py

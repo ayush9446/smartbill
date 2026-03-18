@@ -4,12 +4,12 @@ from datetime import datetime
 
 class ProductBase(BaseModel):
     name: str
-    price_per_unit: float
+    price_per_unit: float = Field(..., ge=0)
     unit: str = "pcs"
-    stock: float
+    stock: float = Field(..., ge=0)
     category: Optional[str] = "General"
     barcode: str
-    low_stock_threshold: float = 5.0
+    low_stock_threshold: float = Field(default=5.0, ge=0)
 
 class ProductCreate(ProductBase):
     pass
@@ -25,7 +25,7 @@ class InvoiceItemBase(BaseModel):
     quantity: float # Weight or count
 
 class InvoiceItemCreate(InvoiceItemBase):
-    pass
+    quantity: float = Field(..., ge=0.01)
 
 class InvoiceItem(InvoiceItemBase):
     id: int
@@ -38,7 +38,7 @@ class InvoiceItem(InvoiceItemBase):
 
 class InvoiceBase(BaseModel):
     customer_name: Optional[str] = "Walk-in Customer"
-    discount: float = 0.0
+    discount: float = Field(default=0.0, ge=0)
 
 class InvoiceCreate(InvoiceBase):
     items: List[InvoiceItemCreate]

@@ -1,7 +1,12 @@
 {
-    "SHOP_NAME": "Shop name",
-    "SHOP_LOCATION": "Place",
-    "SHOP_PHONE": "+91 5689254523",
-    "GST_NUMBER": "32AAAAA1234A1Z9",
-    "SETTINGS_PASSWORD": "admin123"
+    "SHOP_NAME": "AKS SHOP",
+    "SHOP_LOCATION": "Kochi",
+    "SHOP_PHONE": "4465681246",
+    "GST_NUMBER": "GSTXXXXXXXXXXXX",
+    "ENABLE_GST": false,
+    "GST_PERCENT": 0.0,
+    "ENABLE_CGST": false,
+    "CGST_PERCENT": 0.0,
+    "ENABLE_SGST": false,
+    "SGST_PERCENT": 0.0
 }

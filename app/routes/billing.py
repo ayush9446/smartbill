@@ -8,6 +8,7 @@ from fastapi import Depends, APIRouter, HTTPException
 # Note: we import verify_admin from a separate utility to avoid circular imports
 from app.utils.security import verify_admin
 
+
 router = APIRouter(prefix="/billing", tags=["billing"])
 
 @router.post("/invoice", response_model=schemas.Invoice)
@@ -62,3 +63,14 @@ def create_invoice(invoice_data: schemas.InvoiceCreate, db: Session = Depends(ge
 @router.get("/invoices", response_model=List[schemas.Invoice])
 def get_invoices(db: Session = Depends(get_db)):
     return db.query(models.Invoice).options(joinedload(models.Invoice.items).joinedload(models.InvoiceItem.product)).all()
+@router.post("/reset")
+def reset_billing(db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
+    try:
+        # Delete invoice items first (though cascade delete should handle it if set)
+        db.query(models.InvoiceItem).delete()
+        db.query(models.Invoice).delete()
+        db.commit()
+        return {"message": "Billing data reset successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

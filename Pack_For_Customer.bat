@@ -60,9 +60,11 @@ mkdir "%DIST_FOLDER%"
 
 copy "dist\SmartBill.exe" "%DIST_FOLDER%\"
 
-:: Copy persistent data files as starters (if they exist)
-if exist "smartbill.db" copy "smartbill.db" "%DIST_FOLDER%\"
-if exist "settings.json" copy "settings.json" "%DIST_FOLDER%\"
+:: [CLEAN BUILD] Skip copying your local database (contains old history) or settings.
+:: This ensures a clean experience for the final customer on a first-time install.
+if exist "%DIST_FOLDER%\smartbill.db" del "%DIST_FOLDER%\smartbill.db"
+if exist "%DIST_FOLDER%\settings.json" del "%DIST_FOLDER%\settings.json"
+
 
 echo.
 echo ===================================================

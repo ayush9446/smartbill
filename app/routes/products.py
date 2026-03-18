@@ -7,10 +7,11 @@ from fastapi import Depends, APIRouter, HTTPException
 # Note: we import verify_admin from a separate utility to avoid circular imports
 from app.utils.security import verify_admin
 
+
 router = APIRouter(prefix="/products", tags=["products"])
 
 @router.post("/", response_model=schemas.Product)
-def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
+def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
     # Check if barcode exists
     existing_barcode = db.query(models.Product).filter(models.Product.barcode == product.barcode).first()
     if existing_barcode:
@@ -43,7 +44,7 @@ def get_product_by_barcode(barcode: str, db: Session = Depends(get_db)):
     return product
 
 @router.put("/{product_id}", response_model=schemas.Product)
-def update_product(product_id: int, product_update: schemas.ProductCreate, db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
+def update_product(product_id: int, product_update: schemas.ProductCreate, db: Session = Depends(get_db)):
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -72,10 +73,19 @@ def update_product(product_id: int, product_update: schemas.ProductCreate, db: S
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{product_id}")
-def delete_product(product_id: int, db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
+def delete_product(product_id: int, db: Session = Depends(get_db)):
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")
     db.delete(db_product)
     db.commit()
     return {"message": "Product deleted successfully"}
+@router.post("/reset")
+def reset_inventory(db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
+    try:
+        db.query(models.Product).delete()
+        db.commit()
+        return {"message": "Inventory reset successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

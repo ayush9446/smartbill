@@ -70,7 +70,7 @@ function loadPage(page) {
     state.currentPage = page;
     
     // Pages that require admin password
-    const restrictedPages = ['inventory', 'reports', 'settings'];
+    const restrictedPages = ['settings'];
     
     if (restrictedPages.includes(page) && !settingsPassword) {
         renderLockScreen(page);
@@ -196,8 +196,14 @@ function renderDashboard() {
         <div class="dashboard-charts">
             <div class="card" style="padding: 24px; background: white; border-radius: 12px; box-shadow: var(--shadow);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3>Recent Transactions</h3>
+                    <h3><i class="fas fa-history"></i> Recent Transactions</h3>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="icon-btn" onclick="window.printCurrentTable('Recent Transactions')" title="Print List"><i class="fas fa-print"></i></button>
+                        <button class="icon-btn" onclick="window.saveReportAsPDF('Recent Transactions')" title="Save PDF" style="color: #e11d48;"><i class="fas fa-file-pdf"></i></button>
+                    </div>
+
                 </div>
+
                 <table>
                     <thead>
                         <tr>
@@ -665,7 +671,15 @@ function renderReports() {
             <div class="card" style="padding: 24px; background: white; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 24px;">
                 <div style="display: flex; flex-direction: column; gap: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                        <h2 style="margin: 0;">Sales Reports</h2>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <h2 style="margin: 0;">Sales Reports</h2>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="icon-btn" onclick="window.printCurrentTable('Sales Report')" title="Print Report"><i class="fas fa-print"></i></button>
+                                <button class="icon-btn" onclick="window.saveReportAsPDF('Sales Report')" title="Save PDF" style="color: #e11d48;"><i class="fas fa-file-pdf"></i></button>
+                            </div>
+                        </div>
+
+
                         <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                             <div class="search-box" style="width: 200px; background: #f1f5f9;">
                                 <i class="fas fa-search"></i>
@@ -1002,8 +1016,7 @@ window.openAddProductModal = () => {
         const res = await fetch('/api/products/', {
             method: 'POST',
             headers: { 
-                'Content-Type': 'application/json',
-                'X-Admin-Password': settingsPassword
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
         });
@@ -1149,8 +1162,7 @@ window.openEditProductModal = (id) => {
         const res = await fetch(`/api/products/${p.id}`, {
             method: 'PUT',
             headers: { 
-                'Content-Type': 'application/json',
-                'X-Admin-Password': settingsPassword
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
         });
@@ -1173,9 +1185,7 @@ window.deleteProduct = async (id) => {
 
     const res = await fetch(`/api/products/${id}`, {
         method: 'DELETE',
-        headers: {
-            'X-Admin-Password': settingsPassword
-        }
+        headers: {}
     });
 
     if (res.ok) {
@@ -1195,9 +1205,10 @@ function renderSettings() {
 
 function renderSettingsForm() {
     pageContent.innerHTML = `
-        <div class="card" style="padding: 24px; background: white; border-radius: 12px; box-shadow: var(--shadow); max-width: 600px; margin: 0 auto;">
+        <div class="card" style="padding: 24px; background: white; border-radius: 12px; box-shadow: var(--shadow); max-width: 600px; margin: 0 auto 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h2><i class="fas fa-store"></i> Shop Settings</h2>
+                <h2 style="margin: 0;"><i class="fas fa-store"></i> Edit Shop Details</h2>
+
                 <span style="background: #dcfce7; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
                     <i class="fas fa-check-circle"></i> Authenticated
                 </span>
@@ -1224,7 +1235,33 @@ function renderSettingsForm() {
                 </button>
             </form>
         </div>
+
+        <div class="card" style="padding: 24px; background: #fff1f2; border-radius: 12px; border: 1px solid #fecdd3; max-width: 600px; margin: 0 auto;">
+            <h3 style="color: #be123c; margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+            <p style="color: #9f1239; font-size: 13px; margin-bottom: 20px;">These actions are permanent and cannot be undone.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; border-radius: 8px; border: 1px solid #fee2e2;">
+                    <div>
+                        <strong style="display: block; font-size: 14px;">Reset Inventory</strong>
+                        <span style="font-size: 12px; color: #64748b;">Delete all products and stock data.</span>
+                    </div>
+                    <button class="primary-btn" onclick="window.resetInventory()" style="background: #e11d48; padding: 8px 16px; font-size: 13px;">Reset</button>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; border-radius: 8px; border: 1px solid #fee2e2;">
+                    <div>
+                        <strong style="display: block; font-size: 14px;">Reset Reports</strong>
+                        <span style="font-size: 12px; color: #64748b;">Delete all transaction history and invoices.</span>
+                    </div>
+                    <button class="primary-btn" onclick="window.resetReports()" style="background: #e11d48; padding: 8px 16px; font-size: 13px;">Reset</button>
+                </div>
+            </div>
+        </div>
     `;
+
+    // Add event listeners within the render function or as global window functions
+
 
     document.getElementById('settings-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1329,6 +1366,192 @@ function updateNotifications() {
     }
 }
 
+// --- Global Helper Functions ---
+window.printCurrentTable = (title) => {
+    // We target the closest table to ensure we print what's currently in view
+    const tableElement = pageContent.querySelector('table');
+    if (!tableElement) return;
+
+    const printWindow = window.open('', '', 'height=700,width=900');
+    printWindow.document.write('<html><head><title>' + title + '</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body{font-family: sans-serif; padding: 30px;}');
+    printWindow.document.write('.header{text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px;}');
+    printWindow.document.write('h1{margin: 0; color: #1e293b;}');
+    printWindow.document.write('table{width: 100%; border-collapse: collapse; margin-top: 20px;}');
+    printWindow.document.write('th, td{border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 13px;}');
+    printWindow.document.write('th{background-color: #f8fafc; color: #475569;}');
+    printWindow.document.write('.footer{margin-top: 30px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #eee; padding-top: 10px;}');
+    printWindow.document.write('</style></head><body>');
+    
+    // Header
+    printWindow.document.write('<div class="header">');
+    printWindow.document.write('<h1>' + (state.settings.SHOP_NAME || "SmartBill Store") + '</h1>');
+    printWindow.document.write('<p>' + (state.settings.SHOP_LOCATION || "") + '</p>');
+    printWindow.document.write('<p><strong>' + title + '</strong> - Date: ' + new Date().toLocaleDateString() + '</p>');
+    printWindow.document.write('</div>');
+    
+    // Summary line if it exists (for reports)
+    const summary = document.getElementById('report-summary');
+    if (summary) {
+        printWindow.document.write('<div style="margin-bottom: 20px; font-weight: bold; background: #fefce8; padding: 10px; border-radius: 5px; border: 1px solid #fef08a;">');
+        const count = document.getElementById('summary-count').innerText;
+        const total = document.getElementById('summary-total').innerText;
+        printWindow.document.write('Summary: ' + count + ' Bills | Total Revenue: ' + total);
+        printWindow.document.write('</div>');
+    }
+
+    // Table Content (Clone to avoid modifying original)
+    const tableClone = tableElement.cloneNode(true);
+    // Remove individual print icons/buttons from the print view
+    tableClone.querySelectorAll('.icon-btn').forEach(btn => btn.remove());
+    
+    printWindow.document.write(tableClone.outerHTML);
+    
+    // Footer
+    printWindow.document.write('<div class="footer">Generated by SmartBill Software | © ' + new Date().getFullYear() + '</div>');
+    
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    
+    // Give it a moment to render then print
+    printWindow.setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+};
+
+window.saveReportAsPDF = async (title) => {
+    // Show loading notification
+    showNotification('Generating PDF...', 'info');
+    
+    const tableElement = pageContent.querySelector('table');
+    if (!tableElement) return;
+
+    // Create a temporary container for PDF generation
+    const tempContainer = document.createElement('div');
+    tempContainer.style.width = '800px';
+    tempContainer.style.padding = '40px';
+    tempContainer.style.background = 'white';
+    tempContainer.style.fontFamily = 'sans-serif';
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.left = '-9999px';
+    
+    // Header
+    const headerHtml = `
+        <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="margin: 0; font-size: 32px;">${state.settings.SHOP_NAME || 'SmartBill Store'}</h1>
+            <p style="margin: 5px 0;">${state.settings.SHOP_LOCATION || ''}</p>
+            <h2 style="margin: 20px 0 0; color: #475569;">${title}</h2>
+            <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+        </div>
+    `;
+    
+    // Summary
+    let summaryHtml = '';
+    const summary = document.getElementById('report-summary');
+    if (summary) {
+        const count = document.getElementById('summary-count').innerText;
+        const total = document.getElementById('summary-total').innerText;
+        summaryHtml = `
+            <div style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <strong>Summary:</strong> ${count} Bills | <strong>Total Revenue:</strong> ${total}
+            </div>
+        `;
+    }
+
+    const tableClone = tableElement.cloneNode(true);
+    tableClone.style.width = '100%';
+    tableClone.style.borderCollapse = 'collapse';
+    tableClone.style.fontSize = '12px';
+    tableClone.querySelectorAll('th, td').forEach(el => {
+        el.style.border = '1px solid #e2e8f0';
+        el.style.padding = '10px';
+        el.style.textAlign = 'left';
+    });
+    // Remove the Action column and icons
+    tableClone.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+    tableClone.querySelectorAll('.icon-btn').forEach(btn => btn.remove());
+
+    tempContainer.innerHTML = headerHtml + summaryHtml + tableClone.outerHTML;
+    document.body.appendChild(tempContainer);
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const canvas = await html2canvas(tempContainer, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`${title}_${new Date().toISOString().slice(0, 10)}.pdf`);
+        showNotification('PDF saved successfully!', 'success');
+    } catch (error) {
+        console.error('PDF Generation failed:', error);
+        showNotification('Failed to generate PDF', 'error');
+    } finally {
+        document.body.removeChild(tempContainer);
+    }
+};
+
+
+window.resetInventory = async () => {
+    if (!confirm('CRITICAL WARNING: This will PERMANENTLY DELETE ALL PRODUCTS from your inventory. This action cannot be undone. Are you absolutely sure?')) return;
+    
+    const doubleCheck = prompt('To confirm deletion, please type "DELETE ALL PRODUCTS":');
+    if (doubleCheck !== "DELETE ALL PRODUCTS") {
+        showNotification('Inventory reset cancelled', 'info');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/products/reset', {
+            method: 'POST',
+            headers: { 'X-Admin-Password': settingsPassword }
+        });
+
+        if (res.ok) {
+            showNotification('Inventory has been completely cleared!', 'success');
+            fetchInitialData();
+        } else {
+            const err = await res.json();
+            showNotification(err.detail || 'Failed to reset inventory', 'error');
+        }
+    } catch (error) {
+        showNotification('Reset failed: ' + error.message, 'error');
+    }
+};
+
+window.resetReports = async () => {
+    if (!confirm('CRITICAL WARNING: This will PERMANENTLY DELETE ALL TRANSACTION HISTORY and SALES REPORTS. This action cannot be undone. Are you absolutely sure?')) return;
+    
+    const doubleCheck = prompt('To confirm deletion, please type "DELETE ALL REPORTS":');
+    if (doubleCheck !== "DELETE ALL REPORTS") {
+        showNotification('Reports reset cancelled', 'info');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/billing/reset', {
+            method: 'POST',
+            headers: { 'X-Admin-Password': settingsPassword }
+        });
+
+        if (res.ok) {
+            showNotification('All reports and transaction history cleared!', 'success');
+            fetchInitialData();
+        } else {
+            const err = await res.json();
+            showNotification(err.detail || 'Failed to reset reports', 'error');
+        }
+    } catch (error) {
+        showNotification('Reset failed: ' + error.message, 'error');
+    }
+};
+
 // Notification Toggle
 document.addEventListener('click', (e) => {
     const dropdown = document.getElementById('notif-dropdown');
@@ -1340,3 +1563,4 @@ document.addEventListener('click', (e) => {
         dropdown.classList.add('hidden');
     }
 });
+

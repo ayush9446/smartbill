@@ -30,10 +30,10 @@ def load_settings():
     
     # Default settings (without password)
     default_settings = {
-        "SHOP_NAME": "AKS SUPERMARKET",
-        "SHOP_LOCATION": "Ernakulam, Kerala",
-        "SHOP_PHONE": "+91 98765 43210",
-        "GST_NUMBER": "32AAAAA1234A1Z5"
+        "SHOP_NAME": "YOUR SHOP NAME",
+        "SHOP_LOCATION": "Enter Shop Location Here",
+        "SHOP_PHONE": "+91 00000 00000",
+        "GST_NUMBER": "GSTXXXXXXXXXXXX"
     }
     # Create the file with defaults if it doesn't exist
     save_settings(default_settings)

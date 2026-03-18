@@ -23,15 +23,11 @@ echo [2/2] Creating Secure Distribution Folder: SmartBill_Final...
 if exist "SmartBill_Final" rd /s /q "SmartBill_Final"
 mkdir "SmartBill_Final"
 copy "dist\SmartBill.exe" "SmartBill_Final\"
-if exist "smartbill.db" copy "smartbill.db" "SmartBill_Final\"
+:: [CLEAN BUILD] Skip copying your local database (contains old history) or settings.
+:: The application will automatically create new empty ones on the customer's computer.
+if exist "SmartBill_Final\smartbill.db" del "SmartBill_Final\smartbill.db"
+if exist "SmartBill_Final\settings.json" del "SmartBill_Final\settings.json"
 
-:: Create a CLEAN settings.json (No password)
-echo [INFO] Generating clean settings.json...
-if exist "settings.json" (
-    powershell -Command " = Get-Content 'settings.json' | ConvertFrom-Json; if (.PSObject.Properties.Name -contains 'SETTINGS_PASSWORD') { .PSObject.Properties.Remove('SETTINGS_PASSWORD') };  | ConvertTo-Json | Set-Content 'SmartBill_Final\settings.json'"
-) else (
-    echo {"SHOP_NAME": "AKS SUPERMARKET"} > "SmartBill_Final\settings.json"
-)
 
 :: EXTRA CLEANUP (Delete temporary work folders)
 echo [CLEANUP] Removing redundant files and folders...

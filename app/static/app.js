@@ -1251,6 +1251,14 @@ window.deleteProduct = async (id) => {
 let settingsPassword = ''; // Store verified password for the session
 
 function renderSettings() {
+    if (!settingsPassword) {
+        const pass = prompt("Enter Admin Password to access Settings:");
+        if (!pass) {
+            set_page('dashboard');
+            return;
+        }
+        settingsPassword = pass;
+    }
     renderSettingsForm();
 }
 

@@ -51,9 +51,25 @@ def load_settings():
     save_settings(default_settings)
     return default_settings
 
-def save_settings(settings_dict):
+def set_hidden(path, hide=True):
+    """Sets/Unsets the file attribute to HIDDEN on Windows."""
+    if os.name == 'nt' and os.path.exists(path):
+        try:
+            import ctypes
+            # FILE_ATTRIBUTE_HIDDEN = 2
+            # FILE_ATTRIBUTE_NORMAL = 128
+            attr = 2 if hide else 128
+            ctypes.windll.kernel32.SetFileAttributesW(path, attr)
+        except:
+            pass
+
+def save_settings(new_settings: dict):
+    # Unhide before writing (some systems block writing to hidden files)
+    set_hidden(SETTINGS_FILE, hide=False)
     with open(SETTINGS_FILE, "w") as f:
-        json.dump(settings_dict, f, indent=4)
+        json.dump(new_settings, f, indent=4)
+    # Hide after writing
+    set_hidden(SETTINGS_FILE, hide=True)
 
 def get_public_settings(settings_dict):
     """Return settings without the password for public API responses."""

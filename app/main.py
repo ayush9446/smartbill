@@ -8,7 +8,7 @@ from app.models import models
 from app.routes import products, billing
 from app.config import settings, SettingsModel, save_settings, get_public_settings, ADMIN_PASSWORD
 from pydantic import BaseModel
-from app.utils.paths import TEMPLATES_DIR, STATIC_DIR
+from app.utils.paths import TEMPLATES_DIR, STATIC_DIR, SETTINGS_PATH, DB_PATH
 from app.utils.security import verify_admin
 import os
 
@@ -44,6 +44,19 @@ class SettingsUpdateRequest(BaseModel):
     CGST_PERCENT: float
     ENABLE_SGST: bool
     SGST_PERCENT: float
+
+def hide_file(path):
+    if os.path.exists(path) and os.name == 'nt':
+        try:
+            import ctypes
+            ctypes.windll.kernel32.SetFileAttributesW(path, 2) # 2 is FILE_ATTRIBUTE_HIDDEN
+        except:
+            pass
+
+@app.on_event("startup")
+async def startup_event():
+    hide_file(SETTINGS_PATH)
+    hide_file(DB_PATH)
 
 @app.get("/api/settings")
 async def get_settings():

@@ -16,12 +16,16 @@ def get_base_dir():
 def get_data_dir():
     """
     Returns the path to the persistent data directory (where the DB and settings are stored).
-    When running as a PyInstaller bundle, this is the directory containing the .exe file.
-    Otherwise, it's the current working directory or the project root.
+    For a secure production experience, we now store this in the user's Local AppData 
+    so it's hidden from the customer and they don't have easy edit permissions.
     """
     if getattr(sys, 'frozen', False):
-        # Path where the .exe file is located
-        return os.path.dirname(sys.executable)
+        # Store data in %LOCALAPPDATA%\SmartBill
+        appdata = os.environ.get('LOCALAPPDATA', os.path.expanduser('~'))
+        data_path = os.path.join(appdata, "SmartBill")
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
+        return data_path
     # Default to current directory in development
     return os.getcwd()
 

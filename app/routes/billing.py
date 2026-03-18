@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session, joinedload
 from typing import List
 import uuid
-from datetime import datetime
+from sqlalchemy.orm import Session, joinedload
 from app.database.connection import get_db
 from app.models import models
 from app.schemas import schemas
+from fastapi import Depends, APIRouter, HTTPException
+# Note: we import verify_admin from a separate utility to avoid circular imports
+from app.utils.security import verify_admin
 
 router = APIRouter(prefix="/billing", tags=["billing"])
 

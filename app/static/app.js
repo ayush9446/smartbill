@@ -68,6 +68,15 @@ async function fetchInitialData() {
 
 function loadPage(page) {
     state.currentPage = page;
+    
+    // Pages that require admin password
+    const restrictedPages = ['inventory', 'reports', 'settings'];
+    
+    if (restrictedPages.includes(page) && !settingsPassword) {
+        renderLockScreen(page);
+        return;
+    }
+
     switch (page) {
         case 'dashboard':
             renderDashboard();
@@ -87,6 +96,69 @@ function loadPage(page) {
         default:
             pageContent.innerHTML = `<h1>${page.charAt(0).toUpperCase() + page.slice(1)} Coming Soon</h1>`;
     }
+}
+
+function renderLockScreen(targetPage) {
+    pageContent.innerHTML = `
+        <div class="card" style="padding: 40px; background: white; border-radius: 16px; box-shadow: var(--shadow); max-width: 420px; margin: 60px auto; text-align: center;">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #1e293b, #334155); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                <i class="fas fa-user-shield" style="color: white; font-size: 28px;"></i>
+            </div>
+            <h2 style="margin-bottom: 8px; color: #1e293b;">Admin Access Required</h2>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 28px;">Entering <b>${targetPage.charAt(0).toUpperCase() + targetPage.slice(1)}</b> requires the administrator password.</p>
+            <form id="lock-password-form">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <input type="password" id="admin-pwd-input" placeholder="Enter Admin Password..." 
+                        style="text-align: center; font-size: 16px; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; width: 100%; box-sizing: border-box; transition: border-color 0.2s;"
+                        required>
+                </div>
+                <button type="submit" class="primary-btn" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px; border-radius: 12px; background: #1e293b;">
+                    <i class="fas fa-unlock"></i> Unlock Page
+                </button>
+                <div id="lock-error" style="color: #ef4444; font-size: 13px; margin-top: 12px; display: none;"></div>
+            </form>
+        </div>
+    `;
+
+    document.getElementById('admin-pwd-input').focus();
+
+    document.getElementById('lock-password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const pwd = document.getElementById('admin-pwd-input').value;
+        const errorDiv = document.getElementById('lock-error');
+        const btn = e.target.querySelector('button[type="submit"]');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        
+        try {
+            const res = await fetch('/api/settings/verify-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd })
+            });
+
+            if (res.ok) {
+                settingsPassword = pwd;
+                showNotification('Access granted!', 'success');
+                loadPage(targetPage);
+            } else {
+                errorDiv.textContent = '✗ Incorrect password. Please try again.';
+                errorDiv.style.display = 'block';
+                document.getElementById('admin-pwd-input').value = '';
+                document.getElementById('admin-pwd-input').focus();
+                const card = pageContent.querySelector('.card');
+                card.style.animation = 'shake 0.4s ease';
+                setTimeout(() => card.style.animation = '', 400);
+            }
+        } catch (error) {
+            errorDiv.textContent = 'Connection error. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+        
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-unlock"></i> Unlock Page';
+    });
 }
 
 // --- Dashboard ---
@@ -929,7 +1001,10 @@ window.openAddProductModal = () => {
 
         const res = await fetch('/api/products/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Admin-Password': settingsPassword
+            },
             body: JSON.stringify(data)
         });
 
@@ -1073,7 +1148,10 @@ window.openEditProductModal = (id) => {
 
         const res = await fetch(`/api/products/${p.id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Admin-Password': settingsPassword
+            },
             body: JSON.stringify(data)
         });
 
@@ -1094,7 +1172,10 @@ window.deleteProduct = async (id) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     const res = await fetch(`/api/products/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            'X-Admin-Password': settingsPassword
+        }
     });
 
     if (res.ok) {
@@ -1109,74 +1190,7 @@ window.deleteProduct = async (id) => {
 let settingsPassword = ''; // Store verified password for the session
 
 function renderSettings() {
-    // If password already verified this session, go straight to settings form
-    if (settingsPassword) {
-        renderSettingsForm();
-        return;
-    }
-    
-    // Show password prompt
-    pageContent.innerHTML = `
-        <div class="card" style="padding: 40px; background: white; border-radius: 16px; box-shadow: var(--shadow); max-width: 420px; margin: 60px auto; text-align: center;">
-            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-                <i class="fas fa-lock" style="color: white; font-size: 28px;"></i>
-            </div>
-            <h2 style="margin-bottom: 8px; color: #1e293b;">Settings Protected</h2>
-            <p style="color: #64748b; font-size: 14px; margin-bottom: 28px;">Enter the admin password to access shop settings.</p>
-            <form id="password-form">
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <input type="password" id="settings-pwd" placeholder="Enter password..." 
-                        style="text-align: center; font-size: 16px; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; width: 100%; box-sizing: border-box; transition: border-color 0.2s;"
-                        onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" required>
-                </div>
-                <button type="submit" class="primary-btn" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px; border-radius: 12px;">
-                    <i class="fas fa-unlock"></i> Unlock Settings
-                </button>
-                <div id="pwd-error" style="color: #ef4444; font-size: 13px; margin-top: 12px; display: none;"></div>
-            </form>
-        </div>
-    `;
-
-    document.getElementById('settings-pwd').focus();
-
-    document.getElementById('password-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const pwd = document.getElementById('settings-pwd').value;
-        const errorDiv = document.getElementById('pwd-error');
-        const btn = e.target.querySelector('button[type="submit"]');
-        
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-        
-        try {
-            const res = await fetch('/api/settings/verify-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: pwd })
-            });
-
-            if (res.ok) {
-                settingsPassword = pwd; // Store for this session
-                showNotification('Access granted!', 'success');
-                renderSettingsForm();
-            } else {
-                errorDiv.textContent = '✗ Incorrect password. Please try again.';
-                errorDiv.style.display = 'block';
-                document.getElementById('settings-pwd').value = '';
-                document.getElementById('settings-pwd').focus();
-                // Shake animation
-                const card = pageContent.querySelector('.card');
-                card.style.animation = 'shake 0.4s ease';
-                setTimeout(() => card.style.animation = '', 400);
-            }
-        } catch (error) {
-            errorDiv.textContent = 'Connection error. Please try again.';
-            errorDiv.style.display = 'block';
-        }
-        
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-unlock"></i> Unlock Settings';
-    });
+    renderSettingsForm();
 }
 
 function renderSettingsForm() {
@@ -1225,7 +1239,10 @@ function renderSettingsForm() {
         try {
             const res = await fetch('/api/settings', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': settingsPassword
+                },
                 body: JSON.stringify(data)
             });
 

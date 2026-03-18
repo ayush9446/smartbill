@@ -1,0 +1,22 @@
+1. How to reflect code changes in the .exe?
+No, changes to your Python or JavaScript files will not update the .exeautomatically. Because we chose a single-file .exe for distribution, all the code is "frozen" inside it.
+If you make any changes in the future, you must re-run the build command. To make this easy for you, I have updated your Create_EXE.batfile to include all the new hidden security imports and settings.To rebuild in the future:
+
+Make your code changes.
+Double-click 
+Create_EXE.bat in your root folder.Wait for it to finish. A fresh dist\SmartBill.exewill be created.
+
+
+
+2. How to change the Admin Password?
+To change the secret administrator password (currently admin123):
+
+Open the file: d:\Smart bill\smartbill\app\config.py
+Look for this line near the top:
+python
+ADMIN_PASSWORD = "admin123"
+Change it to your new password (e.g., ADMIN_PASSWORD = "my_new_secret").
+Important: Because the password is hardcoded for security, you MUST re-run 
+
+Create_EXE.bat
+ after changing it to update the software.

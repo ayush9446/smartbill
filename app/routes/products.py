@@ -1,14 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from typing import List
+from sqlalchemy.orm import Session
 from app.database.connection import get_db
 from app.models import models
 from app.schemas import schemas
+from fastapi import Depends, APIRouter, HTTPException
+# Note: we import verify_admin from a separate utility to avoid circular imports
+from app.utils.security import verify_admin
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 @router.post("/", response_model=schemas.Product)
-def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
     # Check if barcode exists
     existing_barcode = db.query(models.Product).filter(models.Product.barcode == product.barcode).first()
     if existing_barcode:
@@ -41,7 +43,7 @@ def get_product_by_barcode(barcode: str, db: Session = Depends(get_db)):
     return product
 
 @router.put("/{product_id}", response_model=schemas.Product)
-def update_product(product_id: int, product_update: schemas.ProductCreate, db: Session = Depends(get_db)):
+def update_product(product_id: int, product_update: schemas.ProductCreate, db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -70,7 +72,7 @@ def update_product(product_id: int, product_update: schemas.ProductCreate, db: S
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{product_id}")
-def delete_product(product_id: int, db: Session = Depends(get_db)):
+def delete_product(product_id: int, db: Session = Depends(get_db), admin: bool = Depends(verify_admin)):
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")

@@ -6,26 +6,27 @@ from sqlalchemy.orm import Session, joinedload
 from app.database.connection import engine, Base, get_db
 from app.models import models
 from app.routes import products, billing
-from app.config import settings, SettingsModel, save_settings, get_public_settings
+from app.config import settings, SettingsModel, save_settings, get_public_settings, ADMIN_PASSWORD
 from pydantic import BaseModel
+from app.utils.paths import TEMPLATES_DIR, STATIC_DIR
+from app.utils.security import verify_admin
 import os
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Supermarket Billing System")
-templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # Include routers
 app.include_router(products.router, prefix="/api")
 app.include_router(billing.router, prefix="/api")
 
 # Mount static files
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-if not os.path.exists(static_dir):
-    os.makedirs(static_dir)
+if not os.path.exists(STATIC_DIR):
+    os.makedirs(STATIC_DIR)
 
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # --- Password verification model ---
 class PasswordVerify(BaseModel):
@@ -45,26 +46,20 @@ async def get_settings():
 
 @app.post("/api/settings/verify-password")
 async def verify_settings_password(data: PasswordVerify):
-    if data.password == settings.get("SETTINGS_PASSWORD", "admin123"):
+    if data.password == ADMIN_PASSWORD:
         return {"status": "success"}
     raise HTTPException(status_code=403, detail="Incorrect password")
 
 @app.post("/api/settings")
-async def update_settings(new_settings: SettingsUpdateRequest):
+async def update_settings(new_settings: SettingsUpdateRequest, admin: bool = Depends(verify_admin)):
     try:
-        # Verify password first
-        if new_settings.password != settings.get("SETTINGS_PASSWORD", "admin123"):
-            raise HTTPException(status_code=403, detail="Incorrect password. Settings not saved.")
-        
-        # Update only the shop fields (not the password)
+        # Update only the shop fields
         settings["SHOP_NAME"] = new_settings.SHOP_NAME
         settings["SHOP_LOCATION"] = new_settings.SHOP_LOCATION
         settings["SHOP_PHONE"] = new_settings.SHOP_PHONE
         settings["GST_NUMBER"] = new_settings.GST_NUMBER
         save_settings(settings)
         return {"status": "success", "settings": get_public_settings(settings)}
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

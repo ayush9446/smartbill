@@ -23,3 +23,12 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+
+# PyInstaller & Distribution
+build/
+dist/
+dist_final/
+SmartBill_Final/
+SmartBill_SECURE/
+SmartBill_DIST/
+*.spec

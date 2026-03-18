@@ -1,36 +1,77 @@
 @echo off
-set "DIST_FOLDER=SmartBill_Distribution"
+setlocal enabledelayedexpansion
+
 echo ===================================================
-echo   SmartBill: Creating Distribution Package...
+echo   SmartBill: Building Windowed Distribution...
 echo ===================================================
 
-:: Create a fresh distribution folder
+:: Check if venv exists
+if not exist "venv\Scripts\python.exe" (
+    echo [ERROR] Virtual environment (venv) not found!
+    echo Please make sure you have created the venv and installed requirements.
+    pause
+    exit /b 1
+)
+
+set PYTHON=venv\Scripts\python.exe
+
+:: Check if PyInstaller is installed in the venv
+%PYTHON% -m pip show pyinstaller >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo [INFO] PyInstaller NOT found in venv.
+    echo Installing PyInstaller now...
+    %PYTHON% -m pip install pyinstaller
+)
+
+:: Clear previous build/dist folders
+if exist "build" rd /s /q "build"
+if exist "dist" rd /s /q "dist"
+
+:: Build the EXE
+echo.
+echo [1/2] Building the EXE (Windowed mode - No Terminal)...
+:: --onefile: bundle into a single EXE
+:: --windowed: suppress the console window
+:: --add-data: include app folder
+:: --hidden-import: include optional uvicorn internals
+%PYTHON% -m PyInstaller --noconfirm --onefile --clean --windowed ^
+    --name "SmartBill" ^
+    --add-data "app;app" ^
+    --hidden-import "h11" --hidden-import "uvicorn.protocols" ^
+    --hidden-import "uvicorn.protocols.http" --hidden-import "uvicorn.protocols.http.h11_impl" ^
+    --hidden-import "uvicorn.lifespan" --hidden-import "uvicorn.lifespan.on" ^
+    "main.py"
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [FAILURE] Build failed.
+    pause
+    exit /b %errorlevel%
+)
+
+:: Move the EXE to the distribution folder
+set "DIST_FOLDER=SmartBill_DIST"
+echo.
+echo [2/2] Finalizing the distribution folder: %DIST_FOLDER%...
+
 if exist "%DIST_FOLDER%" rd /s /q "%DIST_FOLDER%"
 mkdir "%DIST_FOLDER%"
 
-:: Copy essential folders
-xcopy /e /i "app" "%DIST_FOLDER%\app"
+copy "dist\SmartBill.exe" "%DIST_FOLDER%\"
 
-:: Copy essential scripts
-copy "main.py" "%DIST_FOLDER%\"
-copy "requirements.txt" "%DIST_FOLDER%\"
-copy "Start_SmartBill.bat" "%DIST_FOLDER%\"
-copy "Stop_SmartBill.bat" "%DIST_FOLDER%\"
-
-:: Copy data files (only if they exist)
+:: Copy persistent data files as starters (if they exist)
 if exist "smartbill.db" copy "smartbill.db" "%DIST_FOLDER%\"
 if exist "settings.json" copy "settings.json" "%DIST_FOLDER%\"
-
-:: Remove any pycache files to keep it clean
-for /d /r "%DIST_FOLDER%" %%d in (__pycache__) do @if exist "%%d" rd /s /q "%%d"
 
 echo.
 echo ===================================================
 echo   SUCCESS! 
-echo   Your "clean" folder is ready: %DIST_FOLDER%
+echo   Your folder is ready at: %DIST_FOLDER%
 echo.
-echo   1. Simply right-click the folder: %DIST_FOLDER%
-echo   2. Select "Compress to ZIP file"
-echo   3. Send that ZIP to your customer.
+echo   NOTE: The terminal is now HIDDEN for a better 
+echo   customer experience. When you run SmartBill.exe, 
+echo   it will look like nothing is happening for 2-3 
+echo   seconds, then the browser will open.
 echo ===================================================
 pause

@@ -7,6 +7,7 @@ from app.schemas import schemas
 from fastapi import Depends, APIRouter, HTTPException
 # Note: we import verify_admin from a separate utility to avoid circular imports
 from app.utils.security import verify_admin
+from app.config import settings
 
 
 router = APIRouter(prefix="/billing", tags=["billing"])
@@ -41,15 +42,30 @@ def create_invoice(invoice_data: schemas.InvoiceCreate, db: Session = Depends(ge
             subtotal=subtotal
         ))
     
-    # Removed GST calculation as per user request
-    gst_amount = 0.0
-    final_total = total_amount - invoice_data.discount
+    # Calculate Taxes based on settings
+    subtotal_total = total_amount
+    gst_val = 0.0
+    cgst_val = 0.0
+    sgst_val = 0.0
+    
+    if settings.get("ENABLE_GST"):
+        gst_val = (subtotal_total * settings.get("GST_PERCENT", 0) / 100)
+    
+    if settings.get("ENABLE_CGST"):
+        cgst_val = (subtotal_total * settings.get("CGST_PERCENT", 0) / 100)
+
+    if settings.get("ENABLE_SGST"):
+        sgst_val = (subtotal_total * settings.get("SGST_PERCENT", 0) / 100)
+    
+    final_total = subtotal_total + gst_val + cgst_val + sgst_val - invoice_data.discount
     
     db_invoice = models.Invoice(
         invoice_number=invoice_number,
         customer_name=invoice_data.customer_name,
         total_amount=final_total,
-        gst_amount=gst_amount,
+        gst_amount=gst_val,
+        cgst_amount=cgst_val,
+        sgst_amount=sgst_val,
         discount=invoice_data.discount,
         items=invoice_items
     )

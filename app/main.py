@@ -38,6 +38,12 @@ class SettingsUpdateRequest(BaseModel):
     SHOP_LOCATION: str
     SHOP_PHONE: str
     GST_NUMBER: str
+    ENABLE_GST: bool
+    GST_PERCENT: float
+    ENABLE_CGST: bool
+    CGST_PERCENT: float
+    ENABLE_SGST: bool
+    SGST_PERCENT: float
 
 @app.get("/api/settings")
 async def get_settings():
@@ -58,6 +64,12 @@ async def update_settings(new_settings: SettingsUpdateRequest, admin: bool = Dep
         settings["SHOP_LOCATION"] = new_settings.SHOP_LOCATION
         settings["SHOP_PHONE"] = new_settings.SHOP_PHONE
         settings["GST_NUMBER"] = new_settings.GST_NUMBER
+        settings["ENABLE_GST"] = new_settings.ENABLE_GST
+        settings["GST_PERCENT"] = new_settings.GST_PERCENT
+        settings["ENABLE_CGST"] = new_settings.ENABLE_CGST
+        settings["CGST_PERCENT"] = new_settings.CGST_PERCENT
+        settings["ENABLE_SGST"] = new_settings.ENABLE_SGST
+        settings["SGST_PERCENT"] = new_settings.SGST_PERCENT
         save_settings(settings)
         return {"status": "success", "settings": get_public_settings(settings)}
     except Exception as e:

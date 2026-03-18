@@ -10,6 +10,12 @@ class SettingsModel(BaseModel):
     SHOP_LOCATION: str
     SHOP_PHONE: str
     GST_NUMBER: str
+    ENABLE_GST: bool = False
+    GST_PERCENT: float = 0.0
+    ENABLE_CGST: bool = False
+    CGST_PERCENT: float = 0.0
+    ENABLE_SGST: bool = False
+    SGST_PERCENT: float = 0.0
 
 # CRITICAL: This password is now hardcoded inside the EXE for security.
 # Customers cannot see this in settings.json.
@@ -33,7 +39,13 @@ def load_settings():
         "SHOP_NAME": "YOUR SHOP NAME",
         "SHOP_LOCATION": "Enter Shop Location Here",
         "SHOP_PHONE": "+91 00000 00000",
-        "GST_NUMBER": "GSTXXXXXXXXXXXX"
+        "GST_NUMBER": "GSTXXXXXXXXXXXX",
+        "ENABLE_GST": False,
+        "GST_PERCENT": 9.0,
+        "ENABLE_CGST": False,
+        "CGST_PERCENT": 9.0,
+        "ENABLE_SGST": False,
+        "SGST_PERCENT": 9.0
     }
     # Create the file with defaults if it doesn't exist
     save_settings(default_settings)

@@ -264,10 +264,8 @@ function renderBilling() {
                     <span>Subtotal</span>
                     <span id="sum-subtotal">₹0.00</span>
                 </div>
-                <div class="summary-item" style="display: flex; justify-content: space-between; margin: 20px 0;">
-                    <span>GST (18%)</span>
-                    <span id="sum-gst">₹0.00</span>
-                </div>
+                <div id="summary-tax-rows"></div>
+
                 <div class="summary-item" style="display: flex; justify-content: space-between; margin: 20px 0;">
                     <span>Discount (₹)</span>
                     <input type="number" id="bill-discount" value="0.00" step="0.01" style="width: 80px; text-align: right;" onchange="calculateTotals()">
@@ -408,13 +406,44 @@ function calculateTotals() {
     const subtotal = state.cart.reduce((acc, item) => acc + (item.price_per_unit * item.quantity), 0);
     const discountEl = document.getElementById('bill-discount');
     const discount = discountEl ? parseFloat(discountEl.value) || 0 : 0;
-    const total = subtotal - discount; // Apply discount
+    
+    let taxes = 0;
+    let taxHtml = '';
+    
+    if (state.settings.ENABLE_GST) {
+        const gst = subtotal * (state.settings.GST_PERCENT || 0) / 100;
+        taxes += gst;
+        taxHtml += `<div class="summary-item" style="display: flex; justify-content: space-between; margin: 20px 0;">
+                        <span>GST (${state.settings.GST_PERCENT}%)</span>
+                        <span>₹${gst.toFixed(2)}</span>
+                    </div>`;
+    }
+    
+    if (state.settings.ENABLE_CGST) {
+        const cgst = subtotal * (state.settings.CGST_PERCENT || 0) / 100;
+        taxes += cgst;
+        taxHtml += `<div class="summary-item" style="display: flex; justify-content: space-between; margin: 20px 0;">
+                        <span>CGST (${state.settings.CGST_PERCENT}%)</span>
+                        <span>₹${cgst.toFixed(2)}</span>
+                    </div>`;
+    }
+
+    if (state.settings.ENABLE_SGST) {
+        const sgst = subtotal * (state.settings.SGST_PERCENT || 0) / 100;
+        taxes += sgst;
+        taxHtml += `<div class="summary-item" style="display: flex; justify-content: space-between; margin: 20px 0;">
+                        <span>SGST (${state.settings.SGST_PERCENT}%)</span>
+                        <span>₹${sgst.toFixed(2)}</span>
+                    </div>`;
+    }
+
+    
+    const taxRowsEl = document.getElementById('summary-tax-rows');
+    if (taxRowsEl) taxRowsEl.innerHTML = taxHtml;
+
+    const total = subtotal + taxes - discount;
 
     document.getElementById('sum-subtotal').innerText = `₹${subtotal.toFixed(2)}`;
-    // Hide or set GST to 0 in UI
-    const gstElement = document.getElementById('sum-gst');
-    if (gstElement) gstElement.innerText = `₹0.00`;
-
     document.getElementById('sum-total').innerText = `₹${Math.max(0, total).toFixed(2)}`;
 }
 
@@ -502,19 +531,41 @@ function showPrintPreview(inv) {
             </table>
 
             <div style="border-top: 2px solid #333; padding-top: 15px;">
-                ${inv.discount > 0 ? `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                     <span>Subtotal</span>
-                    <span>₹${(inv.total_amount + inv.discount).toFixed(2)}</span>
+                    <span>₹${(inv.items.reduce((acc, it) => acc + it.subtotal, 0)).toFixed(2)}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #ef4444;">
+                
+                ${inv.gst_amount > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>GST</span>
+                    <span>₹${inv.gst_amount.toFixed(2)}</span>
+                </div>` : ''}
+
+                ${inv.cgst_amount > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>CGST</span>
+                    <span>₹${inv.cgst_amount.toFixed(2)}</span>
+                </div>` : ''}
+
+                ${inv.sgst_amount > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>SGST</span>
+                    <span>₹${inv.sgst_amount.toFixed(2)}</span>
+                </div>` : ''}
+
+
+                ${inv.discount > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #ef4444;">
                     <span>Discount</span>
                     <span>-₹${inv.discount.toFixed(2)}</span>
                 </div>` : ''}
-                <div class="grand-total" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                
+                <div class="grand-total" style="display: flex; justify-content: space-between; margin-top: 10px; margin-bottom: 10px;">
                     <span style="font-size: 16px; font-weight: bold;">GRAND TOTAL</span>
                     <span style="font-size: 20px; font-weight: 900;">₹${inv.total_amount.toFixed(2)}</span>
                 </div>
+
                 <div style="border-top: 1px dashed #666; margin-top: 10px; padding-top: 10px; text-align: center; font-size: 13px;">
                     Amount in words: ${numberToWords(Math.round(inv.total_amount))} Rupees Only
                 </div>
@@ -1230,11 +1281,50 @@ function renderSettingsForm() {
                     <label>GST Number</label>
                     <input type="text" id="set-shop-gst" value="${state.settings.GST_NUMBER || ''}" required>
                 </div>
-                <button type="submit" class="primary-btn" style="width: 100%; justify-content: center; margin-top: 20px;">
+                
+                <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 15px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-percent"></i> Tax Configuration</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="set-enable-gst" ${state.settings.ENABLE_GST ? 'checked' : ''}>
+                                Enable GST
+                            </label>
+                            <div style="margin-top: 8px; display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="set-gst-percent" value="${state.settings.GST_PERCENT || 0}" step="0.1" style="width: 70px;">
+                                <span style="font-size: 14px;">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="set-enable-cgst" ${state.settings.ENABLE_CGST ? 'checked' : ''}>
+                                Enable CGST
+                            </label>
+                            <div style="margin-top: 8px; display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="set-cgst-percent" value="${state.settings.CGST_PERCENT || 0}" step="0.1" style="width: 70px;">
+                                <span style="font-size: 14px;">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="set-enable-sgst" ${state.settings.ENABLE_SGST ? 'checked' : ''}>
+                                Enable SGST
+                            </label>
+                            <div style="margin-top: 8px; display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="set-sgst-percent" value="${state.settings.SGST_PERCENT || 0}" step="0.1" style="width: 70px;">
+                                <span style="font-size: 14px;">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="primary-btn" style="width: 100%; justify-content: center; margin-top: 10px;">
                     <i class="fas fa-save"></i> Save Settings
                 </button>
             </form>
         </div>
+
 
         <div class="card" style="padding: 24px; background: #fff1f2; border-radius: 12px; border: 1px solid #fecdd3; max-width: 600px; margin: 0 auto;">
             <h3 style="color: #be123c; margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
@@ -1270,7 +1360,13 @@ function renderSettingsForm() {
             SHOP_NAME: document.getElementById('set-shop-name').value,
             SHOP_LOCATION: document.getElementById('set-shop-loc').value,
             SHOP_PHONE: document.getElementById('set-shop-phone').value,
-            GST_NUMBER: document.getElementById('set-shop-gst').value
+            GST_NUMBER: document.getElementById('set-shop-gst').value,
+            ENABLE_GST: document.getElementById('set-enable-gst').checked,
+            GST_PERCENT: parseFloat(document.getElementById('set-gst-percent').value) || 0,
+            ENABLE_CGST: document.getElementById('set-enable-cgst').checked,
+            CGST_PERCENT: parseFloat(document.getElementById('set-cgst-percent').value) || 0,
+            ENABLE_SGST: document.getElementById('set-enable-sgst').checked,
+            SGST_PERCENT: parseFloat(document.getElementById('set-sgst-percent').value) || 0
         };
 
         try {

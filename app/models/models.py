@@ -30,7 +30,9 @@ class Invoice(Base):
     invoice_number = Column(String, unique=True, index=True)
     customer_name = Column(String)
     total_amount = Column(Float)
-    gst_amount = Column(Float)
+    gst_amount = Column(Float) # Stores SGST/GST
+    cgst_amount = Column(Float)
+    sgst_amount = Column(Float)
     discount = Column(Float)
     created_at = Column(DateTime, default=datetime.now)
 

@@ -48,6 +48,8 @@ class Invoice(InvoiceBase):
     invoice_number: str
     total_amount: float
     gst_amount: float
+    cgst_amount: float
+    sgst_amount: float
     created_at: datetime
     items: List[InvoiceItem]
 

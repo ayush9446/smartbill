@@ -279,11 +279,39 @@
             </table>
 
             <div class="receipt-totals">
+                <!-- Calculate raw subtotal sum -->
+                {% set ns = namespace(subtotal=0) %}
+                {% for item in invoice.items %}
+                    {% set ns.subtotal = ns.subtotal + item.subtotal %}
+                {% endfor %}
+
                 <div class="total-row">
                     <span style="color: var(--text-muted);">Subtotal</span>
-                    <span>₹{{ "%.2f"|format(invoice.total_amount) }}</span>
+                    <span>₹{{ "%.2f"|format(ns.subtotal) }}</span>
                 </div>
-                <!-- Discount row if exists (>0) -->
+                
+                {% if invoice.gst_amount > 0 %}
+                <div class="total-row">
+                    <span style="color: var(--text-muted);">GST</span>
+                    <span>₹{{ "%.2f"|format(invoice.gst_amount) }}</span>
+                </div>
+                {% endif %}
+
+                {% if invoice.cgst_amount > 0 %}
+                <div class="total-row">
+                    <span style="color: var(--text-muted);">CGST</span>
+                    <span>₹{{ "%.2f"|format(invoice.cgst_amount) }}</span>
+                </div>
+                {% endif %}
+
+                {% if invoice.sgst_amount > 0 %}
+                <div class="total-row">
+                    <span style="color: var(--text-muted);">SGST</span>
+                    <span>₹{{ "%.2f"|format(invoice.sgst_amount) }}</span>
+                </div>
+                {% endif %}
+
+
                 {% if invoice.discount > 0 %}
                 <div class="total-row">
                     <span style="color: var(--text-muted);">Discount</span>
@@ -296,6 +324,7 @@
                     <span>₹{{ "%.2f"|format(invoice.total_amount) }}</span>
                 </div>
             </div>
+
         </div>
 
         <div class="receipt-footer">

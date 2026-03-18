@@ -1,13 +1,16 @@
 @echo off
-TITLE Stop SmartBill Server
+echo ===================================================
+echo   SmartBill: Stopping Background Process...
+echo ===================================================
 
-echo ===================================================
-echo   Stopping SmartBill Background Server...
-echo ===================================================
+:: Forcefully kill the SmartBill.exe and its subprocesses
+taskkill /F /IM SmartBill.exe /T >nul 2>&1
+
+:: Also kill python uvicorn if it was running
+taskkill /F /IM python.exe /T >nul 2>&1
+
 echo.
-
-:: Call powershell to find and safely kill only the python process running uvicorn
-powershell -Command "Get-WmiObject Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'python' -and $_.CommandLine -match 'uvicorn' } | Stop-Process -Force -ErrorAction SilentlyContinue"
-
-echo SmartBill server stopped successfully.
-timeout /t 3 >nul
+echo [DONE] SmartBill and Python processes have been stopped.
+echo You can now ZIP, move, or rebuild your files safely.
+echo.
+pause

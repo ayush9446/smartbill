@@ -25,23 +25,14 @@ if exist "build" rd /s /q "build"
 if exist "dist" rd /s /q "dist"
 if exist "SmartBill_Final" rd /s /q "SmartBill_Final"
 
-:: 4. Build the EXE with all necessary hidden imports
+:: 4. Build the EXE (Single line to avoid ^ issues)
 echo.
 echo [1/2] Building the EXE (this may take 1-2 minutes)...
-venv\Scripts\python -m PyInstaller --noconfirm --onefile --clean --windowed ^
-    --name "SmartBill" ^
-    --add-data "app;app" ^
-    --hidden-import "h11" ^
-    --hidden-import "uvicorn.protocols" ^
-    --hidden-import "uvicorn.protocols.http" ^
-    --hidden-import "uvicorn.protocols.http.h11_impl" ^
-    --hidden-import "uvicorn.lifespan" ^
-    --hidden-import "uvicorn.lifespan.on" ^
-    "main.py"
+venv\Scripts\python -m PyInstaller --noconfirm --onefile --clean --windowed --name "SmartBill" --add-data "app;app" --hidden-import "h11" --hidden-import "uvicorn.protocols" --hidden-import "uvicorn.protocols.http" --hidden-import "uvicorn.protocols.http.h11_impl" --hidden-import "uvicorn.lifespan" --hidden-import "uvicorn.lifespan.on" "main.py"
 
 if %errorlevel% neq 0 (
     echo.
-    echo [FAILURE] Build failed. Make sure you don't have SmartBill.exe open!
+    echo [FAILURE] Build failed. Please check if SmartBill.exe is still running!
     pause
     exit /b %errorlevel%
 )
@@ -64,6 +55,7 @@ if exist "settings.json" (
 echo.
 echo ===================================================
 echo   SUCCESS! 
-echo   Package ready in: SmartBill_Final
+echo   Your secure package is ready in: SmartBill_Final
+echo   You can ZIP this folder and send it to customers.
 echo ===================================================
 pause

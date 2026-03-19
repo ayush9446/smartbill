@@ -210,6 +210,7 @@ function renderDashboard() {
                             <th>Invoice #</th>
                             <th>Customer</th>
                             <th>Amount</th>
+                            <th>Mode</th>
                             <th>Date</th>
                             <th>Time</th>
                         </tr>
@@ -220,6 +221,7 @@ function renderDashboard() {
                                 <td><strong>${inv.invoice_number}</strong></td>
                                 <td>${inv.customer_name}</td>
                                 <td>₹${inv.total_amount.toFixed(2)}</td>
+                                <td><span class="badge ${inv.payment_method === 'UPI' ? 'badge-info' : 'badge-success'}" style="font-size: 10px; padding: 2px 6px;">${inv.payment_method}</span></td>
                                 <td>${new Date(inv.created_at).toLocaleDateString()}</td>
                                 <td>${new Date(inv.created_at).toLocaleTimeString()}</td>
                             </tr>
@@ -277,6 +279,19 @@ function renderBilling() {
                 <div class="form-group" style="margin-top: 20px;">
                     <label>Customer Name</label>
                     <input type="text" id="cust-name" value="Walk-in Customer">
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Payment Method</label>
+                    <div style="display: flex; gap: 15px; margin-top: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; flex: 1; border: 2px solid transparent;" id="pay-cash-label">
+                            <input type="radio" name="payment-method" value="CASH" checked style="width: 18px; height: 18px;">
+                            <i class="fas fa-money-bill-wave" style="color: #10b981;"></i> CASH
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; flex: 1; border: 2px solid transparent;" id="pay-upi-label">
+                            <input type="radio" name="payment-method" value="UPI" style="width: 18px; height: 18px;">
+                            <i class="fas fa-mobile-alt" style="color: #6366f1;"></i> UPI
+                        </label>
+                    </div>
                 </div>
                 <button class="primary-btn" id="checkout-btn" style="width: 100%; justify-content: center; margin-top: 20px;">
                     <i class="fas fa-check-circle"></i> Complete Checkout
@@ -461,7 +476,8 @@ async function handleCheckout() {
     const invoiceData = {
         customer_name: document.getElementById('cust-name').value,
         items: state.cart.map(item => ({ product_id: item.id, quantity: item.quantity })),
-        discount: discountValue
+        discount: discountValue,
+        payment_method: document.querySelector('input[name="payment-method"]:checked').value
     };
 
     try {
@@ -495,7 +511,7 @@ function showPrintPreview(inv) {
                 <h1 style="margin: 0; color: #000; font-size: 24px; text-transform: uppercase;">${state.settings.SHOP_NAME || 'SmartBill Store'}</h1>
                 <p style="margin: 5px 0; font-weight: bold; font-size: 14px;">${state.settings.SHOP_LOCATION || 'Retail Store'}</p>
                 <p style="margin: 2px 0; font-size: 13px;">Tel: ${state.settings.SHOP_PHONE || '+91 00000 00000'}</p>
-                <p style="margin: 2px 0; font-weight: bold; font-size: 13px;">GSTIN: ${state.settings.GST_NUMBER || 'N/A'}</p>
+                ${state.settings.GST_NUMBER ? `<p style="margin: 2px 0; font-weight: bold; font-size: 13px;">GSTIN: ${state.settings.GST_NUMBER}</p>` : ''}
                 <div style="margin-top: 10px; border-top: 1px dashed #666; padding-top: 5px; font-style: italic; font-size: 12px;">Retail Sale Invoice</div>
             </div>
             
@@ -507,6 +523,7 @@ function showPrintPreview(inv) {
                 <div style="text-align: right;">
                     <p style="margin: 3px 0;">${new Date(inv.created_at).toLocaleDateString()}</p>
                     <p style="margin: 3px 0;">${new Date(inv.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    <p style="margin: 3px 0;"><strong>Mode:</strong> ${inv.payment_method}</p>
                 </div>
             </div>
 
@@ -780,10 +797,11 @@ function renderReports() {
                                 <th>Date & Time</th>
                                 <th>Invoice #</th>
                                 <th>Customer Name</th>
-                                <th>GST (Tax)</th>
-                                <th>Discount</th>
-                                <th>Total Payable</th>
-                                <th style="text-align: center;">Action</th>
+                                 <th>GST (Tax)</th>
+                                 <th>Discount</th>
+                                 <th>Mode</th>
+                                 <th>Total Payable</th>
+                                 <th style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="reports-table-body">
@@ -839,6 +857,7 @@ window.filterReports = () => {
                 <td>${inv.customer_name}</td>
                 <td>₹${inv.gst_amount.toFixed(2)}</td>
                 <td style="color: #ea580c;">-₹${inv.discount.toFixed(2)}</td>
+                <td><span class="badge ${inv.payment_method === 'UPI' ? 'badge-info' : 'badge-success'}" style="font-size: 11px; padding: 4px 8px;">${inv.payment_method}</span></td>
                 <td><strong style="color: #0f172a; font-size: 15px;">₹${inv.total_amount.toFixed(2)}</strong></td>
                 <td style="text-align: center;">
                     <div style="display: flex; gap: 5px; justify-content: center;">
@@ -1288,8 +1307,8 @@ function renderSettingsForm() {
                     <input type="text" id="set-shop-phone" value="${state.settings.SHOP_PHONE || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label>GST Number</label>
-                    <input type="text" id="set-shop-gst" value="${state.settings.GST_NUMBER || ''}" required>
+                    <label>GST Number (Optional)</label>
+                    <input type="text" id="set-shop-gst" value="${state.settings.GST_NUMBER || ''}">
                 </div>
                 
                 <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">

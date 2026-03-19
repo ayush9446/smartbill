@@ -420,6 +420,11 @@ td {
     color: #b91c1c;
 }
 
+.badge-info {
+    background: #eef2ff;
+    color: #4338ca;
+}
+
 /* Search Popup */
 .search-popup {
     position: absolute;

@@ -1,6 +1,7 @@
 import json
 import os
 from pydantic import BaseModel
+from typing import Optional
 from app.utils.paths import SETTINGS_PATH
 
 SETTINGS_FILE = SETTINGS_PATH
@@ -9,7 +10,7 @@ class SettingsModel(BaseModel):
     SHOP_NAME: str
     SHOP_LOCATION: str
     SHOP_PHONE: str
-    GST_NUMBER: str
+    GST_NUMBER: Optional[str] = ""
     ENABLE_GST: bool = False
     GST_PERCENT: float = 0.0
     ENABLE_CGST: bool = False
@@ -39,7 +40,7 @@ def load_settings():
         "SHOP_NAME": "YOUR SHOP NAME",
         "SHOP_LOCATION": "Enter Shop Location Here",
         "SHOP_PHONE": "+91 00000 00000",
-        "GST_NUMBER": "GSTXXXXXXXXXXXX",
+        "GST_NUMBER": "",
         "ENABLE_GST": False,
         "GST_PERCENT": 9.0,
         "ENABLE_CGST": False,

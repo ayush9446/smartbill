@@ -34,6 +34,7 @@ class Invoice(Base):
     cgst_amount = Column(Float)
     sgst_amount = Column(Float)
     discount = Column(Float)
+    payment_method = Column(String, default="CASH") # CASH, UPI
     created_at = Column(DateTime, default=datetime.now)
 
     items = relationship("InvoiceItem", back_populates="invoice")

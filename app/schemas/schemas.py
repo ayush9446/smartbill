@@ -39,6 +39,7 @@ class InvoiceItem(InvoiceItemBase):
 class InvoiceBase(BaseModel):
     customer_name: Optional[str] = "Walk-in Customer"
     discount: float = Field(default=0.0, ge=0)
+    payment_method: str = "CASH"
 
 class InvoiceCreate(InvoiceBase):
     items: List[InvoiceItemCreate]
@@ -50,6 +51,7 @@ class Invoice(InvoiceBase):
     gst_amount: float
     cgst_amount: float
     sgst_amount: float
+    payment_method: str
     created_at: datetime
     items: List[InvoiceItem]
 

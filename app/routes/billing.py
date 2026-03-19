@@ -68,6 +68,7 @@ def create_invoice(invoice_data: schemas.InvoiceCreate, db: Session = Depends(ge
             cgst_amount=cgst_val,
             sgst_amount=sgst_val,
             discount=invoice_data.discount,
+            payment_method=invoice_data.payment_method,
             items=invoice_items
         )
         

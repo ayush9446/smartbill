@@ -232,7 +232,9 @@
             <h1 class="shop-name">{{ settings.SHOP_NAME }}</h1>
             <p class="shop-location">{{ settings.SHOP_LOCATION }}</p>
             <p style="font-size: 13px; color: var(--text-muted); margin: 3px 0 0;"><i class="fas fa-phone-alt"></i> {{ settings.SHOP_PHONE }}</p>
+            {% if settings.GST_NUMBER %}
             <p style="font-size: 13px; font-weight: 600; margin: 3px 0 0;">GSTIN: {{ settings.GST_NUMBER }}</p>
+            {% endif %}
             <div class="paid-stamp">
                 <i class="fas fa-check-circle"></i> Fully Paid
             </div>
@@ -252,6 +254,10 @@
                 <span>{{ invoice.customer_name }}</span>
             </div>
             <div class="meta-item" style="text-align: right;">
+                <label>Payment Mode</label>
+                <span style="color: var(--primary); font-weight: 700;">{{ invoice.payment_method }}</span>
+            </div>
+            <div class="meta-item">
                 <label>Status</label>
                 <span style="color: var(--success);">Success</span>
             </div>

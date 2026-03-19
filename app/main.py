@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Depends, HTTPException
+from typing import Optional
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -19,9 +20,12 @@ Base.metadata.create_all(bind=engine)
 from sqlalchemy import text
 with engine.connect() as conn:
     # SQLite doesn't support 'IF NOT EXISTS' for columns, so we try and ignore errors
-    for col in ["cgst_amount", "sgst_amount", "discount"]:
+    for col, type_info in [("cgst_amount", "FLOAT DEFAULT 0.0"), 
+                          ("sgst_amount", "FLOAT DEFAULT 0.0"), 
+                          ("discount", "FLOAT DEFAULT 0.0"),
+                          ("payment_method", "VARCHAR(20) DEFAULT 'CASH'")]:
         try:
-            conn.execute(text(f"ALTER TABLE invoices ADD COLUMN {col} FLOAT DEFAULT 0.0"))
+            conn.execute(text(f"ALTER TABLE invoices ADD COLUMN {col} {type_info}"))
             conn.commit() # Required for some SQLAlchemy versions
         except Exception:
             # Column already exists or other non-fatal error
@@ -64,7 +68,7 @@ class SettingsUpdateRequest(BaseModel):
     SHOP_NAME: str
     SHOP_LOCATION: str
     SHOP_PHONE: str
-    GST_NUMBER: str
+    GST_NUMBER: Optional[str] = ""
     ENABLE_GST: bool
     GST_PERCENT: float
     ENABLE_CGST: bool

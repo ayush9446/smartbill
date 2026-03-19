@@ -207,21 +207,23 @@ function renderDashboard() {
                 <table>
                     <thead>
                         <tr>
-                            <th>Invoice #</th>
+                            <th style="width: 50px; text-align: center;">Sl No.</th>
+                            <th style="text-align: center;">Invoice #</th>
                             <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Mode</th>
+                            <th style="text-align: right;">Amount</th>
+                            <th style="text-align: center;">Mode</th>
                             <th>Date</th>
                             <th>Time</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${state.invoices.slice(-5).reverse().map(inv => `
+                        ${state.invoices.slice(-5).reverse().map((inv, index) => `
                             <tr style="cursor: pointer;" onclick="viewInvoice(${inv.id})">
-                                <td><strong>${inv.invoice_number}</strong></td>
+                                <td style="text-align: center; color: #64748b; font-size: 13px;">${index + 1}</td>
+                                <td style="text-align: center;"><strong>${inv.invoice_number}</strong></td>
                                 <td>${inv.customer_name}</td>
-                                <td>₹${inv.total_amount.toFixed(2)}</td>
-                                <td><span class="badge ${inv.payment_method === 'UPI' ? 'badge-info' : 'badge-success'}" style="font-size: 10px; padding: 2px 6px;">${inv.payment_method}</span></td>
+                                <td style="text-align: right;">₹${inv.total_amount.toFixed(2)}</td>
+                                <td style="text-align: center;"><span class="badge ${inv.payment_method === 'UPI' ? 'badge-info' : 'badge-success'}" style="font-size: 10px; padding: 2px 6px;">${inv.payment_method}</span></td>
                                 <td>${new Date(inv.created_at).toLocaleDateString()}</td>
                                 <td>${new Date(inv.created_at).toLocaleTimeString()}</td>
                             </tr>
@@ -794,14 +796,15 @@ function renderReports() {
                     <table style="width: 100%; min-width: 800px;">
                         <thead>
                             <tr>
+                                <th style="width: 50px; text-align: center;">Sl No.</th>
                                 <th>Date & Time</th>
-                                <th>Invoice #</th>
+                                <th style="text-align: center;">Invoice #</th>
                                 <th>Customer Name</th>
-                                 <th>GST (Tax)</th>
-                                 <th>Discount</th>
-                                 <th>Mode</th>
-                                 <th>Total Payable</th>
-                                 <th style="text-align: center;">Action</th>
+                                <th style="text-align: right; width: 90px;">GST (Tax)</th>
+                                <th style="text-align: right; width: 90px;">Discount</th>
+                                <th style="text-align: center;">Mode</th>
+                                <th style="text-align: right;">Total Payable</th>
+                                <th style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="reports-table-body">
@@ -847,18 +850,19 @@ window.filterReports = () => {
         emptyState.classList.remove('hidden');
     } else {
         emptyState.classList.add('hidden');
-        tbody.innerHTML = filtered.slice().reverse().map(inv => `
+        tbody.innerHTML = filtered.slice().reverse().map((inv, index) => `
             <tr>
+                <td style="text-align: center; color: #64748b; font-size: 13px;">${index + 1}</td>
                 <td>
                     <div style="font-weight: 600;">${new Date(inv.created_at).toLocaleDateString()}</div>
                     <small style="color: #64748b;">${new Date(inv.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
                 </td>
-                <td><span style="background: #f1f5f9; color: #1e293b; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold;">${inv.invoice_number}</span></td>
+                <td style="text-align: center;"><span style="background: #f1f5f9; color: #1e293b; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold;">${inv.invoice_number}</span></td>
                 <td>${inv.customer_name}</td>
-                <td>₹${inv.gst_amount.toFixed(2)}</td>
-                <td style="color: #ea580c;">-₹${inv.discount.toFixed(2)}</td>
-                <td><span class="badge ${inv.payment_method === 'UPI' ? 'badge-info' : 'badge-success'}" style="font-size: 11px; padding: 4px 8px;">${inv.payment_method}</span></td>
-                <td><strong style="color: #0f172a; font-size: 15px;">₹${inv.total_amount.toFixed(2)}</strong></td>
+                <td style="text-align: right;">₹${inv.gst_amount.toFixed(2)}</td>
+                <td style="text-align: right; color: #ea580c;">-₹${inv.discount.toFixed(2)}</td>
+                <td style="text-align: center;"><span class="badge ${inv.payment_method === 'UPI' ? 'badge-info' : 'badge-success'}" style="font-size: 11px; padding: 4px 8px;">${inv.payment_method}</span></td>
+                <td style="text-align: right;"><strong style="color: #0f172a; font-size: 15px;">₹${inv.total_amount.toFixed(2)}</strong></td>
                 <td style="text-align: center;">
                     <div style="display: flex; gap: 5px; justify-content: center;">
                         <button class="icon-btn" onclick="viewInvoice(${inv.id})" title="Details"><i class="fas fa-expand"></i></button>
@@ -1571,12 +1575,14 @@ window.saveReportAsPDF = async (title) => {
 
     // Create a temporary container for PDF generation
     const tempContainer = document.createElement('div');
-    tempContainer.style.width = '800px';
-    tempContainer.style.padding = '40px';
+    tempContainer.style.width = '900px';
+    tempContainer.style.padding = '30px';
+    tempContainer.style.boxSizing = 'border-box';
     tempContainer.style.background = 'white';
     tempContainer.style.fontFamily = 'sans-serif';
     tempContainer.style.position = 'fixed';
     tempContainer.style.left = '-9999px';
+    tempContainer.style.overflow = 'visible';
     
     // Header
     const headerHtml = `
@@ -1605,13 +1611,52 @@ window.saveReportAsPDF = async (title) => {
     tableClone.style.width = '100%';
     tableClone.style.borderCollapse = 'collapse';
     tableClone.style.fontSize = '12px';
-    tableClone.querySelectorAll('th, td').forEach(el => {
+    const originalHeaders = Array.from(tableElement.querySelectorAll('thead th'));
+    const originalBodyRows = Array.from(tableElement.querySelectorAll('tbody tr'));
+
+    // Copy alignments for headers
+    tableClone.querySelectorAll('thead th').forEach((el, index) => {
         el.style.border = '1px solid #e2e8f0';
-        el.style.padding = '10px';
-        el.style.textAlign = 'left';
+        el.style.padding = '10px 5px';
+        el.style.backgroundColor = '#f8fafc';
+        el.style.color = '#475569';
+        if (originalHeaders[index] && originalHeaders[index].style.textAlign) {
+            el.style.textAlign = originalHeaders[index].style.textAlign;
+        } else {
+            el.style.textAlign = 'left';
+        }
     });
-    // Remove the Action column and icons
-    tableClone.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+
+    // Copy alignments for body cells
+    tableClone.querySelectorAll('tbody tr').forEach((row, rowIndex) => {
+        const originalRow = originalBodyRows[rowIndex];
+        if (!originalRow) return;
+        const originalCells = Array.from(originalRow.querySelectorAll('td'));
+        
+        row.querySelectorAll('td').forEach((el, colIndex) => {
+            el.style.border = '1px solid #e2e8f0';
+            el.style.padding = '8px 5px'; // Slightly tighter padding to save space
+            if (originalCells[colIndex] && originalCells[colIndex].style.textAlign) {
+                el.style.textAlign = originalCells[colIndex].style.textAlign;
+            } else if (originalHeaders[colIndex] && originalHeaders[colIndex].style.textAlign) {
+                el.style.textAlign = originalHeaders[colIndex].style.textAlign;
+            } else {
+                el.style.textAlign = 'left';
+            }
+            
+            // Fix for nested elements (like the date/time small tag)
+            const smallTag = el.querySelector('small');
+            if (smallTag) {
+                smallTag.style.display = 'block';
+                smallTag.style.color = '#64748b';
+            }
+        });
+    });
+    // Remove the Action column if it exists
+    const lastHeader = tableClone.querySelector('thead th:last-child');
+    if (lastHeader && (lastHeader.innerText.includes('Action') || lastHeader.innerText === '')) {
+        tableClone.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+    }
     tableClone.querySelectorAll('.icon-btn').forEach(btn => btn.remove());
 
     tempContainer.innerHTML = headerHtml + summaryHtml + tableClone.outerHTML;
@@ -1619,15 +1664,35 @@ window.saveReportAsPDF = async (title) => {
 
     try {
         const { jsPDF } = window.jspdf;
-        const canvas = await html2canvas(tempContainer, { scale: 2 });
+        const canvas = await html2canvas(tempContainer, { 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF('p', 'mm', 'a4');
         const imgProps = pdf.getImageProperties(imgData);
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        
+        let heightLeft = pdfHeight;
+        let position = 0;
 
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        // Add first page
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pageHeight;
+
+        // Add subsequent pages if needed
+        while (heightLeft > 0) {
+            position = heightLeft - pdfHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pageHeight;
+        }
+
         pdf.save(`${title}_${new Date().toISOString().slice(0, 10)}.pdf`);
         showNotification('PDF saved successfully!', 'success');
     } catch (error) {

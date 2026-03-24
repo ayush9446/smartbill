@@ -7,9 +7,9 @@ echo ===================================================
 :: Ensure PyInstaller is installed (Most basic command)
 venv\Scripts\python.exe -m pip install pyinstaller
 
-:: Build the EXE (Single line for maximum compatibility)
+:: Build the EXE with custom icon
 echo [1/2] Building the EXE (this will take 1-2 minutes)...
-venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --clean --windowed --name "SmartBill" --add-data "app;app" --hidden-import "h11" --hidden-import "uvicorn.protocols" --hidden-import "uvicorn.protocols.http" --hidden-import "uvicorn.protocols.http.h11_impl" --hidden-import "uvicorn.lifespan" --hidden-import "uvicorn.lifespan.on" "main.py"
+venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --clean --windowed --name "SmartBill" --icon="app_icon.ico" --add-data "app;app" --add-data "app_icon.ico;." --hidden-import "h11" --hidden-import "uvicorn.protocols" --hidden-import "uvicorn.protocols.http" --hidden-import "uvicorn.protocols.http.h11_impl" --hidden-import "uvicorn.lifespan" --hidden-import "uvicorn.lifespan.on" "main.py"
 
 :: Check if build worked
 if not exist "dist\SmartBill.exe" (

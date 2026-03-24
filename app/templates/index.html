@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartBill - Supermarket Management System</title>
-    <link rel="stylesheet" href="/static/style.css?v=1.3">
+    <link rel="stylesheet" href="/static/style.css?v=1.4">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Use local font-awesome if present, fallback to CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,7 +20,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fas fa-shopping-cart"></i>
+                    <i class="fa-solid fa-cart-shopping"></i>
                     <span id="sidebar-shop-name" style="font-size: 16px;">{{ settings.SHOP_NAME[:15] }}{{ '...' if
                         settings.SHOP_NAME|length > 15 else '' }}</span>
                 </div>
@@ -54,7 +55,7 @@
                 <div class="top-bar-actions">
                     <div style="position: relative;">
                         <button class="icon-btn" id="notif-btn">
-                            <i class="far fa-bell"></i>
+                            <i class="fa-regular fa-bell"></i>
                             <span id="notif-count" class="notification-badge hidden">0</span>
                         </button>
                         <div id="notif-dropdown" class="notification-dropdown hidden">
@@ -87,7 +88,7 @@
         </div>
     </div>
 
-    <script src="/static/app.js?v=1.5"></script>
+    <script src="/static/app.js?v=1.6"></script>
 </body>
 
 </html>

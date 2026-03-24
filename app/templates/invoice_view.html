@@ -227,16 +227,16 @@
     <div class="receipt-card">
         <div class="receipt-header">
             <div class="shop-badge">
-                <i class="fas fa-shopping-basket"></i>
+                <i class="fa-solid fa-basket-shopping"></i>
             </div>
             <h1 class="shop-name">{{ settings.SHOP_NAME }}</h1>
             <p class="shop-location">{{ settings.SHOP_LOCATION }}</p>
-            <p style="font-size: 13px; color: var(--text-muted); margin: 3px 0 0;"><i class="fas fa-phone-alt"></i> {{ settings.SHOP_PHONE }}</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 3px 0 0;"><i class="fa-solid fa-phone"></i> {{ settings.SHOP_PHONE }}</p>
             {% if settings.GST_NUMBER %}
             <p style="font-size: 13px; font-weight: 600; margin: 3px 0 0;">GSTIN: {{ settings.GST_NUMBER }}</p>
             {% endif %}
             <div class="paid-stamp">
-                <i class="fas fa-check-circle"></i> Fully Paid
+                <i class="fa-solid fa-circle-check"></i> Fully Paid
             </div>
         </div>
 

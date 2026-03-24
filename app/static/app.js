@@ -102,7 +102,7 @@ function renderLockScreen(targetPage) {
     pageContent.innerHTML = `
         <div class="card" style="padding: 40px; background: white; border-radius: 16px; box-shadow: var(--shadow); max-width: 420px; margin: 60px auto; text-align: center;">
             <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #1e293b, #334155); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-                <i class="fas fa-user-shield" style="color: white; font-size: 28px;"></i>
+                <i class="fa-solid fa-user-shield" style="color: white; font-size: 28px;"></i>
             </div>
             <h2 style="margin-bottom: 8px; color: #1e293b;">Admin Access Required</h2>
             <p style="color: #64748b; font-size: 14px; margin-bottom: 28px;">Entering <b>${targetPage.charAt(0).toUpperCase() + targetPage.slice(1)}</b> requires the administrator password.</p>
@@ -113,7 +113,7 @@ function renderLockScreen(targetPage) {
                         required>
                 </div>
                 <button type="submit" class="primary-btn" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px; border-radius: 12px; background: #1e293b;">
-                    <i class="fas fa-unlock"></i> Unlock Page
+                    <i class="fa-solid fa-unlock"></i> Unlock Page
                 </button>
                 <div id="lock-error" style="color: #ef4444; font-size: 13px; margin-top: 12px; display: none;"></div>
             </form>
@@ -129,7 +129,7 @@ function renderLockScreen(targetPage) {
         const btn = e.target.querySelector('button[type="submit"]');
         
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
         
         try {
             const res = await fetch('/api/settings/verify-password', {
@@ -172,21 +172,21 @@ function renderDashboard() {
     pageContent.innerHTML = `
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon blue"><i class="fas fa-indian-rupee-sign"></i></div>
+                <div class="stat-icon blue"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                 <div class="stat-details">
                     <h3>Total Revenue</h3>
                     <p>₹${totalSales.toFixed(2)}</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon green"><i class="fas fa-shopping-bag"></i></div>
+                <div class="stat-icon green"><i class="fa-solid fa-bag-shopping"></i></div>
                 <div class="stat-details">
                     <h3>Today's Sales</h3>
                     <p>₹${todaySales.toFixed(2)}</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon orange"><i class="fas fa-box"></i></div>
+                <div class="stat-icon orange"><i class="fa-solid fa-box"></i></div>
                 <div class="stat-details">
                     <h3>Total Products</h3>
                     <p>${state.products.length}</p>
@@ -196,10 +196,10 @@ function renderDashboard() {
         <div class="dashboard-charts">
             <div class="card" style="padding: 24px; background: white; border-radius: 12px; box-shadow: var(--shadow);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3><i class="fas fa-history"></i> Recent Transactions</h3>
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Transactions</h3>
                     <div style="display: flex; gap: 8px;">
-                        <button class="icon-btn" onclick="window.printCurrentTable('Recent Transactions')" title="Print List"><i class="fas fa-print"></i></button>
-                        <button class="icon-btn" onclick="window.saveReportAsPDF('Recent Transactions')" title="Save PDF" style="color: #e11d48;"><i class="fas fa-file-pdf"></i></button>
+                        <button class="badge-btn" onclick="window.printCurrentTable('Recent Transactions')" title="Print List" style="padding: 6px 12px;"><i class="fa-solid fa-print"></i> Print</button>
+                        <button class="badge-btn" onclick="window.saveReportAsPDF('Recent Transactions')" title="Save PDF" style="padding: 6px 12px; border-color: #fecdd3; color: #e11d48;"><i class="fa-solid fa-file-pdf"></i> PDF</button>
                     </div>
 
                 </div>
@@ -287,16 +287,16 @@ function renderBilling() {
                     <div style="display: flex; gap: 15px; margin-top: 8px;">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; flex: 1; border: 2px solid transparent;" id="pay-cash-label">
                             <input type="radio" name="payment-method" value="CASH" checked style="width: 18px; height: 18px;">
-                            <i class="fas fa-money-bill-wave" style="color: #10b981;"></i> CASH
+                            <i class="fa-solid fa-money-bill-wave" style="color: #10b981;"></i> CASH
                         </label>
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; flex: 1; border: 2px solid transparent;" id="pay-upi-label">
                             <input type="radio" name="payment-method" value="UPI" style="width: 18px; height: 18px;">
-                            <i class="fas fa-mobile-alt" style="color: #6366f1;"></i> UPI
+                            <i class="fa-solid fa-mobile-screen-button" style="color: #6366f1;"></i> UPI
                         </label>
                     </div>
                 </div>
                 <button class="primary-btn" id="checkout-btn" style="width: 100%; justify-content: center; margin-top: 20px;">
-                    <i class="fas fa-check-circle"></i> Complete Checkout
+                    <i class="fa-solid fa-circle-check"></i> Complete Checkout
                 </button>
             </div>
         </div>
@@ -402,7 +402,7 @@ function updateCartUI() {
                 </div>
             </td>
             <td>₹${(item.price_per_unit * item.quantity).toFixed(2)}</td>
-            <td><button class="icon-btn" onclick="removeFromCart(${index})" style="color: var(--danger)"><i class="fas fa-trash"></i></button></td>
+            <td><button class="icon-btn" onclick="removeFromCart(${index})" style="color: var(--danger)"><i class="fa-solid fa-trash-can"></i></button></td>
         </tr>
     `).join('');
 
@@ -603,20 +603,20 @@ function showPrintPreview(inv) {
         </div>
         <div class="no-print" style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
             <button class="primary-btn" onclick="window.print()" style="width: 250px; justify-content: center;">
-                <i class="fas fa-print"></i> Print Official Bill
+                <i class="fa-solid fa-print"></i> Print Official Bill
             </button>
             <div style="display: flex; gap: 10px;">
                 <button class="primary-btn" onclick="saveAsImage('${inv.invoice_number}')" style="background: var(--accent); width: 150px; justify-content: center;">
-                    <i class="fas fa-image"></i> Save JPG
+                    <i class="fa-solid fa-image"></i> Save JPG
                 </button>
                 <button class="primary-btn" onclick="saveAsPDF('${inv.invoice_number}')" style="background: #e11d48; width: 150px; justify-content: center;">
-                    <i class="fas fa-file-pdf"></i> Save PDF
+                    <i class="fa-solid fa-file-pdf"></i> Save PDF
                 </button>
             </div>
             <div style="margin-top: 15px; width: 100%; max-width: 320px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <p style="font-size: 14px; font-weight: bold; margin-bottom: 12px; color: var(--text-main);">Contactless Digital Bill</p>
                 <button class="primary-btn" id="qr-share-btn" style="background: #6366f1; width: 100%; justify-content: center; font-size: 14px; padding: 12px;">
-                    <i class="fas fa-qrcode"></i> Generate QR Bill (Free)
+                    <i class="fa-solid fa-qrcode"></i> Generate QR Bill (Free)
                 </button>
                 <p style="font-size: 11px; color: #64748b; margin-top: 10px;">Customer can scan QR to get receipt instantly.</p>
             </div>
@@ -631,12 +631,12 @@ function showPrintPreview(inv) {
 
 window.showQRBill = (inv) => {
     // Branded Digital Receipt Link
-    // We use the server IP (10.30.2.53) so customers on Wi-Fi can access it.
+    // We use the current window's origin so it works on any network IP
     let origin = window.location.origin;
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-        origin = 'http://10.30.2.53:8000';
-    }
-
+    
+    // If accessing via localhost but want to generate for a phone scan, 
+    // we could use a setting, but for now we trust the direct IP access.
+    
     const billUrl = `${origin}/bill/${inv.id}`;
     // Larger, high-resolution QR for easier scanning
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(billUrl)}`;
@@ -646,7 +646,7 @@ window.showQRBill = (inv) => {
         <div style="text-align: center; padding: 10px 20px 30px;">
             <div style="margin-bottom: 25px;">
                 <div style="width: 50px; height: 50px; background: #eef2ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
-                    <i class="fas fa-qrcode" style="color: #6366f1; font-size: 24px;"></i>
+                    <i class="fa-solid fa-qrcode" style="color: #6366f1; font-size: 24px;"></i>
                 </div>
                 <h2 style="font-family: 'Outfit', sans-serif; margin: 0; color: #1e293b; font-size: 22px;">Digital Receipt Ready</h2>
                 <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Secure & Contactless for ${state.settings.SHOP_NAME || 'Store'}</p>
@@ -661,7 +661,7 @@ window.showQRBill = (inv) => {
             
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; max-width: 320px; margin: 0 auto 25px; display: flex; align-items: center; gap: 12px; text-align: left;">
                 <div style="width: 35px; height: 35px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="fas fa-wifi" style="color: white; font-size: 14px;"></i>
+                    <i class="fa-solid fa-wifi" style="color: white; font-size: 14px;"></i>
                 </div>
                 <p style="margin: 0; font-size: 11px; color: #475569; line-height: 1.4;">
                     <strong>Step 1:</strong> Connect customer to Shop Wi-Fi.<br>
@@ -670,7 +670,7 @@ window.showQRBill = (inv) => {
             </div>
 
             <button class="primary-btn" id="qr-back-btn" style="margin: 0 auto; background: #1e293b; border-radius: 10px; padding: 12px 24px; font-weight: 600;">
-                <i class="fas fa-arrow-left"></i> Return to Invoice
+                <i class="fa-solid fa-arrow-left"></i> Return to Invoice
             </button>
         </div>
     `;
@@ -746,8 +746,8 @@ function renderReports() {
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2 style="margin: 0;">Sales Reports</h2>
                             <div style="display: flex; gap: 8px;">
-                                <button class="icon-btn" onclick="window.printCurrentTable('Sales Report')" title="Print Report"><i class="fas fa-print"></i></button>
-                                <button class="icon-btn" onclick="window.saveReportAsPDF('Sales Report')" title="Save PDF" style="color: #e11d48;"><i class="fas fa-file-pdf"></i></button>
+                                <button class="badge-btn" onclick="window.printCurrentTable('Sales Report')" title="Print Report" style="padding: 6px 12px;"><i class="fa-solid fa-print"></i> Print</button>
+                                <button class="badge-btn" onclick="window.saveReportAsPDF('Sales Report')" title="Save PDF" style="padding: 6px 12px; border-color: #fecdd3; color: #e11d48;"><i class="fa-solid fa-file-pdf"></i> PDF</button>
                             </div>
                         </div>
 
@@ -762,8 +762,8 @@ function renderReports() {
                                 <span style="color: #64748b;">to</span>
                                 <input type="date" id="report-to" class="form-control" style="padding: 8px; border: 1px solid var(--border); border-radius: 6px;">
                             </div>
-                            <button class="primary-btn" onclick="filterReports()"><i class="fas fa-filter"></i> Filter</button>
-                            <button class="icon-btn" onclick="clearReportsFilter()" title="Clear Filters"><i class="fas fa-times"></i></button>
+                            <button class="primary-btn" onclick="filterReports()"><i class="fa-solid fa-filter"></i> Filter</button>
+                            <button class="icon-btn" onclick="clearReportsFilter()" title="Clear Filters"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
                     
@@ -988,12 +988,13 @@ window.openAddProductModal = () => {
                 <label>Category</label>
                 <select id="p-category">
                     <option value="">Select Category (Optional)</option>
-                    ${[...new Set(state.products.map(p => p.category).filter(c => c))].map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-                    <option value="General">General</option>
-                    <option value="Grocery">Grocery</option>
-                    <option value="Snacks">Snacks</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Dairy">Dairy</option>
+                    ${(() => {
+                        const defaultCats = ["General", "Grocery", "Snacks", "Beverages", "Dairy"];
+                        const existingCats = [...new Set(state.products.map(p => p.category).filter(c => c))];
+                        return [...new Set([...defaultCats, ...existingCats])].sort().map(cat => 
+                            `<option value="${cat}">${cat}</option>`
+                        ).join('');
+                    })()}
                 </select>
             </div>
             <div class="form-group">
@@ -1131,12 +1132,13 @@ window.openEditProductModal = (id) => {
                 <label>Category</label>
                 <select id="p-category">
                     <option value="">Select Category (Optional)</option>
-                    ${[...new Set(state.products.map(p => p.category).filter(c => c))].map(cat => `<option value="${cat}" ${p.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-                    <option value="General" ${p.category === 'General' ? 'selected' : ''}>General</option>
-                    <option value="Grocery" ${p.category === 'Grocery' ? 'selected' : ''}>Grocery</option>
-                    <option value="Snacks" ${p.category === 'Snacks' ? 'selected' : ''}>Snacks</option>
-                    <option value="Beverages" ${p.category === 'Beverages' ? 'selected' : ''}>Beverages</option>
-                    <option value="Dairy" ${p.category === 'Dairy' ? 'selected' : ''}>Dairy</option>
+                    ${(() => {
+                        const defaultCats = ["General", "Grocery", "Snacks", "Beverages", "Dairy"];
+                        const existingCats = [...new Set(state.products.map(p => p.category).filter(c => c))];
+                        return [...new Set([...defaultCats, ...existingCats])].sort().map(cat => 
+                            `<option value="${cat}" ${p.category === cat ? 'selected' : ''}>${cat}</option>`
+                        ).join('');
+                    })()}
                 </select>
             </div>
             <div class="form-group">
